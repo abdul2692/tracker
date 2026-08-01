@@ -1,0 +1,289 @@
+@model SpendingTracker.ViewModels.ReportViewModel
+@{
+    ViewData["Title"] = "Reports — " + Model.PeriodLabel;
+    var period = ViewBag.Period as string ?? "Monthly";
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Financial Report</h1>
+        <p class="page-subtitle">@Model.PeriodLabel</p>
+    </div>
+    <div class="page-actions">
+        <form method="get" class="d-flex gap-2 align-items-center flex-wrap">
+            <select name="period" class="form-select form-control-dark" style="width:140px">
+                <option value="Weekly" selected="@(period == "Weekly")">This Week</option>
+                <option value="Monthly" selected="@(period == "Monthly")">Monthly</option>
+                <option value="Yearly" selected="@(period == "Yearly")">Yearly</option>
+            </select>
+            @if (period == "Monthly")
+            {
+                <select name="month" class="form-select form-control-dark" style="width:130px">
+                    @for (int m = 1; m <= 12; m++)
+                    {
+                        var isSelMonth = Model.Month == m;
+                        <option value="@m" selected="@isSelMonth">
+                            @System.Globalization.DateTimeFormatInfo.CurrentInfo.GetMonthName(m)
+                        </option>
+                    }
+                </select>
+            }
+            @if (period == "Monthly" || period == "Yearly")
+            {
+                <select name="year" class="form-select form-control-dark" style="width:100px">
+                    @for (int y = DateTime.Now.Year; y >= DateTime.Now.Year - 4; y--)
+                    {
+                        var isSelYear = Model.Year == y;
+                        <option value="@y" selected="@isSelYear">@y</option>
+                    }
+                </select>
+            }
+            <button type="submit" class="btn btn-primary-custom">
+                <i class="bi bi-arrow-repeat me-1"></i>Generate
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-6 col-xl-3">
+        <div class="stat-card stat-card-income">
+            <div class="stat-icon"><i class="bi bi-arrow-down-circle-fill"></i></div>
+            <div class="stat-content">
+                <span class="stat-label">Total Income</span>
+                <span class="stat-value">$@Model.TotalIncome.ToString("N2")</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="stat-card stat-card-expense">
+            <div class="stat-icon"><i class="bi bi-arrow-up-circle-fill"></i></div>
+            <div class="stat-content">
+                <span class="stat-label">Total Expenses</span>
+                <span class="stat-value">$@Model.TotalExpenses.ToString("N2")</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="stat-card @(Model.NetSavings >= 0 ? "stat-card-balance" : "stat-card-deficit")">
+            <div class="stat-icon"><i class="bi bi-piggy-bank-fill"></i></div>
+            <div class="stat-content">
+                <span class="stat-label">Net Savings</span>
+                <span class="stat-value">$@Model.NetSavings.ToString("N2")</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="stat-card stat-card-category">
+            <div class="stat-icon"><i class="bi bi-percent"></i></div>
+            <div class="stat-content">
+                <span class="stat-label">Savings Rate</span>
+                <span class="stat-value">
+                    @(Model.TotalIncome > 0 ? ((Model.NetSavings / Model.TotalIncome) * 100).ToString("F1") : "0")%
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+@if (Model.ExpensesByCategory.Any() || Model.WeeklyOrMonthlyTrend.Any())
+{
+    <div class="row g-4 mb-4">
+        @if (Model.ExpensesByCategory.Any())
+        {
+            <div class="col-12 col-lg-5">
+                <div class="card-custom h-100">
+                    <div class="card-custom-header">
+                        <h5 class="card-custom-title"><i class="bi bi-bar-chart-horizontal-fill me-2"></i>Expenses by Category</h5>
+                    </div>
+                    <div class="card-custom-body">
+                        <div class="chart-container">
+                            <canvas id="categoryChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        @if (Model.WeeklyOrMonthlyTrend.Any())
+        {
+            <div class="col-12 col-lg-@(Model.ExpensesByCategory.Any() ? "7" : "12")">
+                <div class="card-custom h-100">
+                    <div class="card-custom-header">
+                        <h5 class="card-custom-title"><i class="bi bi-graph-up me-2"></i>Income vs Expenses Trend</h5>
+                    </div>
+                    <div class="card-custom-body">
+                        <div class="chart-container">
+                            <canvas id="trendChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+<!-- Income & Expense Detail Tables -->
+<div class="row g-4">
+    <!-- Income Table -->
+    <div class="col-12 col-lg-6">
+        <div class="card-custom">
+            <div class="card-custom-header">
+                <h5 class="card-custom-title"><i class="bi bi-arrow-down-circle-fill me-2" style="color:var(--accent-green)"></i>Income (@Model.Incomes.Count()) entries</h5>
+                <span class="fw-700 text-success">+$@Model.TotalIncome.ToString("N2")</span>
+            </div>
+            <div class="card-custom-body p-0">
+                @if (Model.Incomes.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-custom mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Source</th>
+                                    <th>Date</th>
+                                    <th class="text-end">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var inc in Model.Incomes.OrderByDescending(i => i.Date))
+                                {
+                                    <tr>
+                                        <td class="fw-500">@inc.Source</td>
+                                        <td class="text-muted">@inc.Date.ToString("MMM dd")</td>
+                                        <td class="text-end fw-600 text-success">+$@inc.Amount.ToString("N2")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <i class="bi bi-cash-coin empty-icon"></i>
+                        <p>No income in this period</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Expense Table -->
+    <div class="col-12 col-lg-6">
+        <div class="card-custom">
+            <div class="card-custom-header">
+                <h5 class="card-custom-title"><i class="bi bi-arrow-up-circle-fill me-2" style="color:var(--accent-red)"></i>Expenses (@Model.Expenses.Count()) entries</h5>
+                <span class="fw-700 text-danger">-$@Model.TotalExpenses.ToString("N2")</span>
+            </div>
+            <div class="card-custom-body p-0">
+                @if (Model.Expenses.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-custom mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Description</th>
+                                    <th>Category</th>
+                                    <th>Date</th>
+                                    <th class="text-end">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var exp in Model.Expenses.OrderByDescending(e => e.Date))
+                                {
+                                    <tr>
+                                        <td class="fw-500">@(exp.Description ?? exp.Category.Name)</td>
+                                        <td>
+                                            <span class="badge-category" style="background:@(exp.Category.Color)22;color:@exp.Category.Color">
+                                                @exp.Category.Name
+                                            </span>
+                                        </td>
+                                        <td class="text-muted">@exp.Date.ToString("MMM dd")</td>
+                                        <td class="text-end fw-600 text-danger">-$@exp.Amount.ToString("N2")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <i class="bi bi-receipt empty-icon"></i>
+                        <p>No expenses in this period</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const catData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ExpensesByCategory));
+        const trendData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.WeeklyOrMonthlyTrend));
+        const gridColor = 'rgba(255,255,255,0.05)';
+        const tickColor = '#a0aec0';
+        const colors = ['#FF6384','#36A2EB','#FFCE56','#4BC0C0','#9966FF','#FF9F40','#C9CBCF','#97BBCD','#10b981','#f59e0b'];
+
+        // Category bar chart
+        const catCtx = document.getElementById('categoryChart');
+        if (catCtx && Object.keys(catData).length > 0) {
+            new Chart(catCtx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(catData),
+                    datasets: [{
+                        label: 'Spent ($)',
+                        data: Object.values(catData),
+                        backgroundColor: colors.slice(0, Object.keys(catData).length),
+                        borderRadius: 6, borderSkipped: false
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ` $${Number(c.raw).toFixed(2)}` } } },
+                    scales: {
+                        x: { grid: { color: gridColor }, ticks: { color: tickColor, callback: v => '$' + v } },
+                        y: { grid: { color: gridColor }, ticks: { color: tickColor } }
+                    }
+                }
+            });
+        }
+
+        // Trend line chart
+        const trendCtx = document.getElementById('trendChart');
+        if (trendCtx && trendData.length > 0) {
+            new Chart(trendCtx, {
+                type: 'line',
+                data: {
+                    labels: trendData.map(d => d.Month),
+                    datasets: [
+                        {
+                            label: 'Income', data: trendData.map(d => d.Income),
+                            borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)',
+                            tension: 0.4, fill: true, pointRadius: 5, pointBackgroundColor: '#10b981'
+                        },
+                        {
+                            label: 'Expenses', data: trendData.map(d => d.Expenses),
+                            borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.1)',
+                            tension: 0.4, fill: true, pointRadius: 5, pointBackgroundColor: '#ef4444'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: { legend: { labels: { color: tickColor } } },
+                    scales: {
+                        x: { grid: { color: gridColor }, ticks: { color: tickColor } },
+                        y: { grid: { color: gridColor }, ticks: { color: tickColor, callback: v => '$' + v } }
+                    }
+                }
+            });
+        }
+    </script>
+}

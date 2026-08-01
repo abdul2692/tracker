@@ -1,0 +1,157 @@
+@{
+    ViewData["Title"] = "Analytics";
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Analytics</h1>
+        <p class="page-subtitle">Visual insights into your financial data</p>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Pie Chart -->
+    <div class="col-12 col-lg-5">
+        <div class="card-custom h-100">
+            <div class="card-custom-header">
+                <h5 class="card-custom-title"><i class="bi bi-pie-chart-fill me-2"></i>Expenses by Category</h5>
+            </div>
+            <div class="card-custom-body">
+                <div class="chart-container">
+                    <canvas id="categoryPie"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bar Chart -->
+    <div class="col-12 col-lg-7">
+        <div class="card-custom h-100">
+            <div class="card-custom-header">
+                <h5 class="card-custom-title"><i class="bi bi-bar-chart-fill me-2"></i>Monthly Spending (12 Months)</h5>
+            </div>
+            <div class="card-custom-body">
+                <div class="chart-container">
+                    <canvas id="monthlyBar"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Line Chart -->
+<div class="row g-4">
+    <div class="col-12">
+        <div class="card-custom">
+            <div class="card-custom-header">
+                <h5 class="card-custom-title"><i class="bi bi-graph-up-arrow me-2"></i>Income vs Expenses Trend (12 Months)</h5>
+            </div>
+            <div class="card-custom-body">
+                <div class="chart-container-lg">
+                    <canvas id="trendLine"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const categoryDataRaw = @Html.Raw(ViewBag.ExpensesByCategory);
+        const trendDataRaw = @Html.Raw(ViewBag.MonthlyTrend);
+
+        const chartColors = ['#FF6384','#36A2EB','#FFCE56','#4BC0C0','#9966FF','#FF9F40','#C9CBCF','#97BBCD','#10b981','#f59e0b'];
+        const gridColor = 'rgba(255,255,255,0.05)';
+        const tickColor = '#a0aec0';
+
+        // Pie Chart
+        const pieCtx = document.getElementById('categoryPie');
+        const catLabels = Object.keys(categoryDataRaw);
+        const catValues = Object.values(categoryDataRaw);
+
+        if (catLabels.length > 0) {
+            new Chart(pieCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: catLabels,
+                    datasets: [{
+                        data: catValues,
+                        backgroundColor: chartColors.slice(0, catLabels.length),
+                        borderWidth: 0,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    cutout: '60%',
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: tickColor, padding: 16, font: { size: 12 } } },
+                        tooltip: { callbacks: { label: ctx => ` ${ctx.label}: $${Number(ctx.raw).toFixed(2)}` } }
+                    }
+                }
+            });
+        } else {
+            pieCtx.parentElement.innerHTML = '<div class="empty-state"><i class="bi bi-pie-chart empty-icon"></i><p>No data available</p></div>';
+        }
+
+        // Bar Chart
+        const barCtx = document.getElementById('monthlyBar');
+        new Chart(barCtx, {
+            type: 'bar',
+            data: {
+                labels: trendDataRaw.map(d => d.Month),
+                datasets: [{
+                    label: 'Expenses',
+                    data: trendDataRaw.map(d => d.Expenses),
+                    backgroundColor: 'rgba(239,68,68,0.8)',
+                    borderRadius: 6,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { labels: { color: tickColor } } },
+                scales: {
+                    x: { grid: { color: gridColor }, ticks: { color: tickColor } },
+                    y: { grid: { color: gridColor }, ticks: { color: tickColor, callback: v => '$' + v } }
+                }
+            }
+        });
+
+        // Line Chart
+        const lineCtx = document.getElementById('trendLine');
+        new Chart(lineCtx, {
+            type: 'line',
+            data: {
+                labels: trendDataRaw.map(d => d.Month),
+                datasets: [
+                    {
+                        label: 'Income',
+                        data: trendDataRaw.map(d => d.Income),
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16,185,129,0.1)',
+                        tension: 0.4, fill: true, pointRadius: 5,
+                        pointBackgroundColor: '#10b981'
+                    },
+                    {
+                        label: 'Expenses',
+                        data: trendDataRaw.map(d => d.Expenses),
+                        borderColor: '#ef4444',
+                        backgroundColor: 'rgba(239,68,68,0.1)',
+                        tension: 0.4, fill: true, pointRadius: 5,
+                        pointBackgroundColor: '#ef4444'
+                    }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: { legend: { labels: { color: tickColor } } },
+                scales: {
+                    x: { grid: { color: gridColor }, ticks: { color: tickColor } },
+                    y: { grid: { color: gridColor }, ticks: { color: tickColor, callback: v => '$' + v } }
+                }
+            }
+        });
+    </script>
+}

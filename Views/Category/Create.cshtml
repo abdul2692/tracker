@@ -1,0 +1,95 @@
+@model SpendingTracker.ViewModels.CategoryViewModel
+@{
+    ViewData["Title"] = "New Category";
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">New Category</h1>
+        <p class="page-subtitle">Create a custom expense category</p>
+    </div>
+    <a asp-action="Index" class="btn btn-secondary-custom"><i class="bi bi-arrow-left me-1"></i>Back</a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-5">
+        <div class="card-custom">
+            <div class="card-custom-body">
+                <form asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger small rounded-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label-custom"></label>
+                        <input asp-for="Name" class="form-control form-control-dark" placeholder="e.g., Gym, Travel..." />
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Icon" class="form-label-custom">Icon <small class="text-muted">(Bootstrap Icon class)</small></label>
+                        <div class="input-group-custom">
+                            <i id="iconPreview" class="bi bi-tag-fill input-icon"></i>
+                            <input asp-for="Icon" class="form-control-custom" placeholder="bi-tag-fill" id="iconInput" />
+                        </div>
+                        <small class="text-muted">Browse icons at <a href="https://icons.getbootstrap.com" target="_blank" class="auth-link">icons.getbootstrap.com</a></small>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Color" class="form-label-custom">Color</label>
+                        <div class="d-flex align-items-center gap-3">
+                            <input asp-for="Color" type="color" class="form-control form-control-color color-picker" id="colorPicker" value="#6c757d" />
+                            <div class="color-swatches">
+                                @foreach (var color in new[] { "#FF6384","#36A2EB","#FFCE56","#4BC0C0","#9966FF","#FF9F40","#10b981","#ef4444","#3b82f6" })
+                                {
+                                    <button type="button" class="color-swatch" style="background:@color" data-color="@color" onclick="document.getElementById('colorPicker').value='@color'; document.getElementById('Color').value='@color';"></button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Preview -->
+                    <div class="mb-4">
+                        <label class="form-label-custom">Preview</label>
+                        <div class="category-preview" id="categoryPreview">
+                            <div class="category-icon-circle" style="background:#6c757d22; color:#6c757d">
+                                <i class="bi bi-tag-fill fs-4" id="previewIcon"></i>
+                            </div>
+                            <span class="fw-500" id="previewName">My Category</span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary-custom">
+                            <i class="bi bi-check-lg me-1"></i>Create Category
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary-custom">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const iconInput = document.getElementById('iconInput');
+        const colorPicker = document.getElementById('colorPicker');
+        const nameInput = document.getElementById('Name');
+
+        function updatePreview() {
+            const icon = iconInput.value || 'bi-tag-fill';
+            const color = colorPicker.value || '#6c757d';
+            const name = nameInput.value || 'My Category';
+            document.getElementById('iconPreview').className = `bi ${icon} input-icon`;
+            document.getElementById('previewIcon').className = `bi ${icon} fs-4`;
+            document.getElementById('previewName').textContent = name;
+            const circle = document.querySelector('.category-preview .category-icon-circle');
+            circle.style.background = color + '22';
+            circle.style.color = color;
+        }
+
+        iconInput.addEventListener('input', updatePreview);
+        colorPicker.addEventListener('input', updatePreview);
+        nameInput.addEventListener('input', updatePreview);
+    </script>
+}

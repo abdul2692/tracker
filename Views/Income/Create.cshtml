@@ -1,0 +1,67 @@
+@model SpendingTracker.ViewModels.IncomeViewModel
+@{
+    ViewData["Title"] = "Add Income";
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Add Income</h1>
+        <p class="page-subtitle">Record a new income entry</p>
+    </div>
+    <a asp-action="Index" class="btn btn-secondary-custom">
+        <i class="bi bi-arrow-left me-1"></i>Back
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-6">
+        <div class="card-custom">
+            <div class="card-custom-body">
+                <form asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger small rounded-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Amount" class="form-label-custom"></label>
+                        <div class="input-group-custom">
+                            <i class="bi bi-currency-dollar input-icon"></i>
+                            <input asp-for="Amount" class="form-control-custom" placeholder="0.00" type="number" step="0.01" />
+                        </div>
+                        <span asp-validation-for="Amount" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Source" class="form-label-custom"></label>
+                        <div class="input-group-custom">
+                            <i class="bi bi-briefcase input-icon"></i>
+                            <input asp-for="Source" class="form-control-custom" placeholder="e.g., Salary, Freelance..." />
+                        </div>
+                        <span asp-validation-for="Source" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Date" class="form-label-custom"></label>
+                        <div class="input-group-custom">
+                            <i class="bi bi-calendar3 input-icon"></i>
+                            <input asp-for="Date" class="form-control-custom" type="date" />
+                        </div>
+                        <span asp-validation-for="Date" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Description" class="form-label-custom"></label>
+                        <textarea asp-for="Description" class="form-control form-control-dark" rows="3" placeholder="Optional notes..."></textarea>
+                        <span asp-validation-for="Description" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-success-custom">
+                            <i class="bi bi-check-lg me-1"></i>Save Income
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary-custom">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

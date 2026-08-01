@@ -1,0 +1,124 @@
+@model IEnumerable<SpendingTracker.Models.Income>
+@{
+    ViewData["Title"] = "Income";
+    int page = ViewBag.Page;
+    int totalPages = ViewBag.TotalPages;
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Income</h1>
+        <p class="page-subtitle">Total: <strong class="text-success">$@ViewBag.TotalIncome.ToString("N2")</strong> — @ViewBag.TotalCount records</p>
+    </div>
+    <a asp-action="Create" class="btn btn-success-custom">
+        <i class="bi bi-plus-circle me-1"></i>Add Income
+    </a>
+</div>
+
+<!-- Search & Sort -->
+<div class="card-custom mb-4">
+    <div class="card-custom-body py-3">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-12 col-md-6">
+                <div class="input-group-custom">
+                    <i class="bi bi-search input-icon"></i>
+                    <input type="text" name="search" value="@ViewBag.Search" class="form-control-custom" placeholder="Search by source or description..." />
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <select name="sortBy" class="form-select form-control-dark">
+                    <option value="">Sort: Latest First</option>
+                    <option value="date_asc" selected="@(ViewBag.SortBy == "date_asc")">Sort: Oldest First</option>
+                    <option value="amount_desc" selected="@(ViewBag.SortBy == "amount_desc")">Sort: Highest Amount</option>
+                    <option value="amount_asc" selected="@(ViewBag.SortBy == "amount_asc")">Sort: Lowest Amount</option>
+                </select>
+            </div>
+            <div class="col-6 col-md-3">
+                <button type="submit" class="btn btn-primary-custom w-100">Apply Filters</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card-custom">
+    <div class="card-custom-body p-0">
+        @if (Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-custom mb-0">
+                    <thead>
+                        <tr>
+                            <th>Source</th>
+                            <th>Description</th>
+                            <th>Date</th>
+                            <th class="text-end">Amount</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var income in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="icon-circle bg-success-soft me-2">
+                                            <i class="bi bi-arrow-down-circle text-success"></i>
+                                        </div>
+                                        <span class="fw-500">@income.Source</span>
+                                    </div>
+                                </td>
+                                <td class="text-muted">@(income.Description ?? "—")</td>
+                                <td class="text-muted">@income.Date.ToString("MMM dd, yyyy")</td>
+                                <td class="text-end fw-600 text-success">+$@income.Amount.ToString("N2")</td>
+                                <td class="text-center">
+                                    <a asp-action="Edit" asp-route-id="@income.Id" class="btn-icon btn-icon-edit" title="Edit">
+                                        <i class="bi bi-pencil-fill"></i>
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@income.Id" class="btn-icon btn-icon-delete" title="Delete">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            @if (totalPages > 1)
+            {
+                <div class="pagination-wrapper">
+                    <nav>
+                        <ul class="pagination-custom">
+                            @if (page > 1)
+                            {
+                                <li><a class="page-btn" asp-action="Index" asp-route-page="@(page-1)" asp-route-search="@ViewBag.Search" asp-route-sortBy="@ViewBag.SortBy"><i class="bi bi-chevron-left"></i></a></li>
+                            }
+                            @for (int i = Math.Max(1, page - 2); i <= Math.Min(totalPages, page + 2); i++)
+                            {
+                                var btnClass = i == page ? "page-btn active" : "page-btn";
+                                <li><a class="@btnClass" asp-action="Index" asp-route-page="@i" asp-route-search="@ViewBag.Search" asp-route-sortBy="@ViewBag.SortBy">@i</a></li>
+                            }
+                            @if (page < totalPages)
+                            {
+                                <li><a class="page-btn" asp-action="Index" asp-route-page="@(page+1)" asp-route-search="@ViewBag.Search" asp-route-sortBy="@ViewBag.SortBy"><i class="bi bi-chevron-right"></i></a></li>
+                            }
+                        </ul>
+                    </nav>
+                    <span class="text-muted small">Page @(page) of @totalPages</span>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="bi bi-cash-coin empty-icon"></i>
+                <h5>No income records found</h5>
+                <p class="text-muted">Start by adding your first income entry.</p>
+                <a asp-action="Create" class="btn btn-success-custom mt-2">
+                    <i class="bi bi-plus-circle me-1"></i>Add Income
+                </a>
+            </div>
+        }
+    </div>
+</div>

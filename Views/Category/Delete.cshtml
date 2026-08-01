@@ -1,0 +1,33 @@
+@model SpendingTracker.Models.Category
+@{
+    ViewData["Title"] = "Delete Category";
+}
+
+<div class="page-header">
+    <div><h1 class="page-title">Delete Category</h1></div>
+    <a asp-action="Index" class="btn btn-secondary-custom"><i class="bi bi-arrow-left me-1"></i>Back</a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-5">
+        <div class="card-custom border-danger-soft">
+            <div class="card-custom-body text-center py-4">
+                <i class="bi bi-exclamation-triangle-fill text-danger mb-3" style="font-size:3rem"></i>
+                <h5 class="mb-3">Delete this category?</h5>
+                <p class="text-muted mb-4">Expenses linked to this category will lose their category assignment.</p>
+
+                <div class="category-icon-circle mx-auto mb-3" style="background:@(Model.Color)22;color:@Model.Color;width:64px;height:64px">
+                    <i class="@Model.Icon fs-3"></i>
+                </div>
+                <h5 class="mb-4">@Model.Name</h5>
+
+                <form asp-action="Delete" method="post" class="d-flex gap-2 justify-content-center">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <button type="submit" class="btn btn-danger-custom"><i class="bi bi-trash-fill me-1"></i>Yes, Delete</button>
+                    <a asp-action="Index" class="btn btn-secondary-custom">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

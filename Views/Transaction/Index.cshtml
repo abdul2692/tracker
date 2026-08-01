@@ -1,0 +1,132 @@
+@model SpendingTracker.ViewModels.TransactionListViewModel
+@{
+    ViewData["Title"] = "All Transactions";
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Transactions</h1>
+        <p class="page-subtitle">@Model.TotalCount records found</p>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card-custom mb-4">
+    <div class="card-custom-body py-3">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-12 col-md-3">
+                <div class="input-group-custom">
+                    <i class="bi bi-search input-icon"></i>
+                    <input type="text" name="search" value="@Model.Search" class="form-control-custom" placeholder="Search..." />
+                </div>
+            </div>
+            <div class="col-6 col-md-2">
+                <input type="date" name="fromDate" value="@Model.FromDate?.ToString("yyyy-MM-dd")" class="form-control form-control-dark" placeholder="From Date" />
+            </div>
+            <div class="col-6 col-md-2">
+                <input type="date" name="toDate" value="@Model.ToDate?.ToString("yyyy-MM-dd")" class="form-control form-control-dark" placeholder="To Date" />
+            </div>
+            <div class="col-6 col-md-2">
+                <select name="type" class="form-select form-control-dark">
+                    <option value="">All Types</option>
+                    <option value="Income" selected="@(Model.TransactionType == "Income")">Income</option>
+                    <option value="Expense" selected="@(Model.TransactionType == "Expense")">Expense</option>
+                </select>
+            </div>
+            <div class="col-6 col-md-2">
+                <select name="sortBy" class="form-select form-control-dark">
+                    <option value="">Latest First</option>
+                    <option value="date_asc" selected="@(Model.SortBy == "date_asc")">Oldest First</option>
+                    <option value="amount_desc" selected="@(Model.SortBy == "amount_desc")">Highest Amount</option>
+                    <option value="amount_asc" selected="@(Model.SortBy == "amount_asc")">Lowest Amount</option>
+                </select>
+            </div>
+            <div class="col-12 col-md-1">
+                <button type="submit" class="btn btn-primary-custom w-100"><i class="bi bi-funnel-fill"></i></button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card-custom">
+    <div class="card-custom-body p-0">
+        @if (Model.Transactions.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-custom mb-0">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Description</th>
+                            <th>Category / Source</th>
+                            <th>Date</th>
+                            <th class="text-end">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var t in Model.Transactions)
+                        {
+                            <tr>
+                                <td>
+                                    <span class="badge @(t.Type == "Income" ? "badge-income" : "badge-expense")">
+                                        <i class="bi @(t.Type == "Income" ? "bi-arrow-down" : "bi-arrow-up") me-1"></i>
+                                        @t.Type
+                                    </span>
+                                </td>
+                                <td class="fw-500">@t.Description</td>
+                                <td>
+                                    @if (t.CategoryName != null)
+                                    {
+                                        <span class="badge-category" style="background:@(t.CategoryColor)22;color:@t.CategoryColor">
+                                            <i class="@t.CategoryIcon me-1"></i>@t.CategoryName
+                                        </span>
+                                    }
+                                    else if (t.Source != null)
+                                    {
+                                        <span class="text-muted">@t.Source</span>
+                                    }
+                                </td>
+                                <td class="text-muted">@t.Date.ToString("MMM dd, yyyy")</td>
+                                <td class="text-end fw-600 @(t.Type == "Income" ? "text-success" : "text-danger")">
+                                    @(t.Type == "Income" ? "+" : "-")$@t.Amount.ToString("N2")
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @if (Model.TotalPages > 1)
+            {
+                <div class="pagination-wrapper">
+                    <nav>
+                        <ul class="pagination-custom">
+                            @if (Model.Page > 1)
+                            {
+                                <li><a class="page-btn" asp-action="Index" asp-route-page="@(Model.Page-1)" asp-route-search="@Model.Search" asp-route-sortBy="@Model.SortBy" asp-route-type="@Model.TransactionType"><i class="bi bi-chevron-left"></i></a></li>
+                            }
+                            @for (int i = Math.Max(1, Model.Page - 2); i <= Math.Min(Model.TotalPages, Model.Page + 2); i++)
+                            {
+                                var tBtnCls = i == Model.Page ? "page-btn active" : "page-btn";
+                                <li><a class="@tBtnCls" asp-action="Index" asp-route-page="@i" asp-route-search="@Model.Search" asp-route-sortBy="@Model.SortBy" asp-route-type="@Model.TransactionType">@i</a></li>
+                            }
+                            @if (Model.Page < Model.TotalPages)
+                            {
+                                <li><a class="page-btn" asp-action="Index" asp-route-page="@(Model.Page+1)" asp-route-search="@Model.Search" asp-route-sortBy="@Model.SortBy" asp-route-type="@Model.TransactionType"><i class="bi bi-chevron-right"></i></a></li>
+                            }
+                        </ul>
+                    </nav>
+                    <span class="text-muted small">Page @Model.Page of @Model.TotalPages</span>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="bi bi-arrow-left-right empty-icon"></i>
+                <h5>No transactions found</h5>
+                <p class="text-muted">Try adjusting your filters.</p>
+            </div>
+        }
+    </div>
+</div>
