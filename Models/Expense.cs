@@ -9,7 +9,6 @@ namespace SpendingTracker.Models
         CreditCard,
         DebitCard,
         BankTransfer,
-        UPI,
         Other
     }
 

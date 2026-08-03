@@ -8,15 +8,14 @@ using SpendingTracker.ViewModels;
 namespace SpendingTracker.Controllers
 {
     [Authorize]
-    public class IncomeController : Controller
+    public class IncomeController : BaseController
     {
         private readonly IIncomeService _incomeService;
-        private readonly UserManager<ApplicationUser> _userManager;
 
         public IncomeController(IIncomeService incomeService, UserManager<ApplicationUser> userManager)
+            : base(userManager)
         {
             _incomeService = incomeService;
-            _userManager = userManager;
         }
 
         public async Task<IActionResult> Index(int page = 1, string? search = null, string? sortBy = null)

@@ -2,6 +2,29 @@
 
 document.addEventListener('DOMContentLoaded', function () {
 
+    // ── Theme Toggle ─────────────────────────────────────────────────────────
+    var themeToggleBtn = document.getElementById('themeToggle');
+    var themeIcon = document.getElementById('themeIcon');
+
+    function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+        if (themeIcon) {
+            themeIcon.className = theme === 'dark' ? 'bi bi-moon-fill' : 'bi bi-sun-fill';
+        }
+    }
+
+    // Apply saved theme on load (already done inline, but sync the icon)
+    var savedTheme = localStorage.getItem('theme') || 'light';
+    applyTheme(savedTheme);
+
+    if (themeToggleBtn) {
+        themeToggleBtn.addEventListener('click', function () {
+            var current = document.documentElement.getAttribute('data-theme') || 'light';
+            applyTheme(current === 'dark' ? 'light' : 'dark');
+        });
+    }
+
     // ── Sidebar Toggle (desktop collapse) ──────────────────────────────────
     const sidebar = document.getElementById('sidebar');
     const mainWrapper = document.getElementById('mainWrapper');
@@ -106,7 +129,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
 });
 
-// ── Helper: format currency ─────────────────────────────────────────────────
+// ── Helper: format currency (dynamic per user) ───────────────────────────────
 function formatCurrency(value) {
-    return '$' + Number(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    var sym = (typeof window.CURRENCY_SYMBOL !== 'undefined') ? window.CURRENCY_SYMBOL : '£';
+    return sym + Number(value).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
+

@@ -1,4 +1,4 @@
-@model SpendingTracker.ViewModels.TransactionListViewModel
+﻿@model SpendingTracker.ViewModels.TransactionListViewModel
 @{
     ViewData["Title"] = "All Transactions";
 }
@@ -88,7 +88,7 @@
                                 </td>
                                 <td class="text-muted">@t.Date.ToString("MMM dd, yyyy")</td>
                                 <td class="text-end fw-600 @(t.Type == "Income" ? "text-success" : "text-danger")">
-                                    @(t.Type == "Income" ? "+" : "-")$@t.Amount.ToString("N2")
+                                    @(t.Type == "Income" ? "+" : "-")@ViewBag.CurrencySymbol@t.Amount.ToString("N2")
                                 </td>
                             </tr>
                         }
@@ -130,3 +130,4 @@
         }
     </div>
 </div>
+

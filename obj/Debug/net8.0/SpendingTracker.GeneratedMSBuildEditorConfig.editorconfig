@@ -9,119 +9,135 @@ build_property.EnforceExtendedAnalyzerRules =
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = SpendingTracker
 build_property.RootNamespace = SpendingTracker
-build_property.ProjectDir = C:\Users\abdul\OneDrive\Desktop\tracker\
+build_property.ProjectDir = c:\Users\abdul\OneDrive\Desktop\tracker\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.RazorLangVersion = 8.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = true
-build_property.MSBuildProjectDirectory = C:\Users\abdul\OneDrive\Desktop\tracker
+build_property.MSBuildProjectDirectory = c:\Users\abdul\OneDrive\Desktop\tracker
 build_property._RazorSourceGeneratorDebug = 
 
-[C:/Users/abdul/OneDrive/Desktop/tracker/Views/Account/EditProfile.cshtml]
+[c:/Users/abdul/OneDrive/Desktop/tracker/Views/Account/EditProfile.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxFZGl0UHJvZmlsZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/abdul/OneDrive/Desktop/tracker/Views/Account/Login.cshtml]
+[c:/Users/abdul/OneDrive/Desktop/tracker/Views/Account/ForgotPassword.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxGb3Jnb3RQYXNzd29yZC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[c:/Users/abdul/OneDrive/Desktop/tracker/Views/Account/ForgotPasswordConfirmation.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxGb3Jnb3RQYXNzd29yZENvbmZpcm1hdGlvbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[c:/Users/abdul/OneDrive/Desktop/tracker/Views/Account/Login.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxMb2dpbi5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/abdul/OneDrive/Desktop/tracker/Views/Account/Register.cshtml]
+[c:/Users/abdul/OneDrive/Desktop/tracker/Views/Account/Register.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxSZWdpc3Rlci5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/abdul/OneDrive/Desktop/tracker/Views/Analytics/Index.cshtml]
+[c:/Users/abdul/OneDrive/Desktop/tracker/Views/Account/ResetPassword.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxSZXNldFBhc3N3b3JkLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[c:/Users/abdul/OneDrive/Desktop/tracker/Views/Account/ResetPasswordConfirmation.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxSZXNldFBhc3N3b3JkQ29uZmlybWF0aW9uLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[c:/Users/abdul/OneDrive/Desktop/tracker/Views/Analytics/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQW5hbHl0aWNzXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/abdul/OneDrive/Desktop/tracker/Views/Budget/Create.cshtml]
+[c:/Users/abdul/OneDrive/Desktop/tracker/Views/Budget/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQnVkZ2V0XENyZWF0ZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/abdul/OneDrive/Desktop/tracker/Views/Budget/Delete.cshtml]
+[c:/Users/abdul/OneDrive/Desktop/tracker/Views/Budget/Delete.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQnVkZ2V0XERlbGV0ZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/abdul/OneDrive/Desktop/tracker/Views/Budget/Edit.cshtml]
+[c:/Users/abdul/OneDrive/Desktop/tracker/Views/Budget/Edit.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQnVkZ2V0XEVkaXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/abdul/OneDrive/Desktop/tracker/Views/Budget/Index.cshtml]
+[c:/Users/abdul/OneDrive/Desktop/tracker/Views/Budget/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQnVkZ2V0XEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/abdul/OneDrive/Desktop/tracker/Views/Category/Create.cshtml]
+[c:/Users/abdul/OneDrive/Desktop/tracker/Views/Category/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2F0ZWdvcnlcQ3JlYXRlLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/abdul/OneDrive/Desktop/tracker/Views/Category/Delete.cshtml]
+[c:/Users/abdul/OneDrive/Desktop/tracker/Views/Category/Delete.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2F0ZWdvcnlcRGVsZXRlLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/abdul/OneDrive/Desktop/tracker/Views/Category/Edit.cshtml]
+[c:/Users/abdul/OneDrive/Desktop/tracker/Views/Category/Edit.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2F0ZWdvcnlcRWRpdC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/abdul/OneDrive/Desktop/tracker/Views/Category/Index.cshtml]
+[c:/Users/abdul/OneDrive/Desktop/tracker/Views/Category/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2F0ZWdvcnlcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/abdul/OneDrive/Desktop/tracker/Views/Expense/Create.cshtml]
+[c:/Users/abdul/OneDrive/Desktop/tracker/Views/Expense/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRXhwZW5zZVxDcmVhdGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/abdul/OneDrive/Desktop/tracker/Views/Expense/Delete.cshtml]
+[c:/Users/abdul/OneDrive/Desktop/tracker/Views/Expense/Delete.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRXhwZW5zZVxEZWxldGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/abdul/OneDrive/Desktop/tracker/Views/Expense/Edit.cshtml]
+[c:/Users/abdul/OneDrive/Desktop/tracker/Views/Expense/Edit.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRXhwZW5zZVxFZGl0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/abdul/OneDrive/Desktop/tracker/Views/Expense/Index.cshtml]
+[c:/Users/abdul/OneDrive/Desktop/tracker/Views/Expense/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRXhwZW5zZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/abdul/OneDrive/Desktop/tracker/Views/Home/Index.cshtml]
+[c:/Users/abdul/OneDrive/Desktop/tracker/Views/Home/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/abdul/OneDrive/Desktop/tracker/Views/Income/Create.cshtml]
+[c:/Users/abdul/OneDrive/Desktop/tracker/Views/Income/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSW5jb21lXENyZWF0ZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/abdul/OneDrive/Desktop/tracker/Views/Income/Delete.cshtml]
+[c:/Users/abdul/OneDrive/Desktop/tracker/Views/Income/Delete.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSW5jb21lXERlbGV0ZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/abdul/OneDrive/Desktop/tracker/Views/Income/Edit.cshtml]
+[c:/Users/abdul/OneDrive/Desktop/tracker/Views/Income/Edit.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSW5jb21lXEVkaXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/abdul/OneDrive/Desktop/tracker/Views/Income/Index.cshtml]
+[c:/Users/abdul/OneDrive/Desktop/tracker/Views/Income/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSW5jb21lXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/abdul/OneDrive/Desktop/tracker/Views/Report/Index.cshtml]
+[c:/Users/abdul/OneDrive/Desktop/tracker/Views/Report/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmVwb3J0XEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/abdul/OneDrive/Desktop/tracker/Views/Shared/Error.cshtml]
+[c:/Users/abdul/OneDrive/Desktop/tracker/Views/Shared/Error.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXEVycm9yLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/abdul/OneDrive/Desktop/tracker/Views/Shared/_Layout.cshtml]
+[c:/Users/abdul/OneDrive/Desktop/tracker/Views/Shared/_Layout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/abdul/OneDrive/Desktop/tracker/Views/Transaction/Index.cshtml]
+[c:/Users/abdul/OneDrive/Desktop/tracker/Views/Transaction/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVHJhbnNhY3Rpb25cSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/abdul/OneDrive/Desktop/tracker/Views/_ViewImports.cshtml]
+[c:/Users/abdul/OneDrive/Desktop/tracker/Views/_ViewImports.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/abdul/OneDrive/Desktop/tracker/Views/_ViewStart.cshtml]
+[c:/Users/abdul/OneDrive/Desktop/tracker/Views/_ViewStart.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdTdGFydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 

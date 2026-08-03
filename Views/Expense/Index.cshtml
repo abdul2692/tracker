@@ -1,4 +1,4 @@
-@model IEnumerable<SpendingTracker.Models.Expense>
+﻿@model IEnumerable<SpendingTracker.Models.Expense>
 @{
     ViewData["Title"] = "Expenses";
     int page = ViewBag.Page;
@@ -9,7 +9,7 @@
 <div class="page-header">
     <div>
         <h1 class="page-title">Expenses</h1>
-        <p class="page-subtitle">Total: <strong class="text-danger">$@ViewBag.TotalExpenses.ToString("N2")</strong> — @ViewBag.TotalCount records</p>
+        <p class="page-subtitle">Total: <strong class="text-danger">@ViewBag.CurrencySymbol@ViewBag.TotalExpenses.ToString("N2")</strong> — @ViewBag.TotalCount records</p>
     </div>
     <a asp-action="Create" class="btn btn-danger-custom">
         <i class="bi bi-plus-circle me-1"></i>Add Expense
@@ -86,7 +86,7 @@
                                 </td>
                                 <td class="text-muted small">@expense.PaymentMethod</td>
                                 <td class="text-muted">@expense.Date.ToString("MMM dd, yyyy")</td>
-                                <td class="text-end fw-600 text-danger">-$@expense.Amount.ToString("N2")</td>
+                                <td class="text-end fw-600 text-danger">-@ViewBag.CurrencySymbol@expense.Amount.ToString("N2")</td>
                                 <td class="text-center">
                                     <a asp-action="Edit" asp-route-id="@expense.Id" class="btn-icon btn-icon-edit" title="Edit">
                                         <i class="bi bi-pencil-fill"></i>
@@ -136,3 +136,4 @@
         }
     </div>
 </div>
+

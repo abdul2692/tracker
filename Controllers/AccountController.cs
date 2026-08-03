@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using SpendingTracker.Models;
 using SpendingTracker.ViewModels;
@@ -9,11 +10,16 @@ namespace SpendingTracker.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly IEmailSender _emailSender;
 
-        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+        public AccountController(
+            UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager,
+            IEmailSender emailSender)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _emailSender = emailSender;
         }
 
         [HttpGet]
@@ -135,7 +141,87 @@ namespace SpendingTracker.Controllers
             }
 
             TempData["Success"] = "Profile updated successfully.";
-            return RedirectToAction("EditProfile");
+            return RedirectToAction("Index", "Home");
         }
+
+        // -- Forgot Password --------------------------------------------------
+
+        [HttpGet]
+        public IActionResult ForgotPassword() => View();
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel vm)
+        {
+            if (!ModelState.IsValid) return View(vm);
+
+            var user = await _userManager.FindByEmailAsync(vm.Email);
+            if (user == null)
+            {
+                return RedirectToAction(nameof(ForgotPasswordConfirmation));
+            }
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var resetLink = Url.Action(
+                nameof(ResetPassword),
+                "Account",
+                new { token = token, email = vm.Email },
+                Request.Scheme)!;
+
+            var htmlBody = $@"<p>Hi {user.FirstName},</p>
+<p>You requested a password reset for your SpendTracker account.</p>
+<p><a href=""{resetLink}"">Reset Password</a></p>
+<p>If you did not request this, please ignore this email. This link expires in 24 hours.</p>";
+
+            await _emailSender.SendEmailAsync(vm.Email, "Reset Your SpendTracker Password", htmlBody);
+
+            TempData["ResetLink"] = resetLink;
+            return RedirectToAction(nameof(ForgotPasswordConfirmation));
+        }
+
+        [HttpGet]
+        public IActionResult ForgotPasswordConfirmation() => View();
+
+        // -- Reset Password ---------------------------------------------------
+
+        [HttpGet]
+        public IActionResult ResetPassword(string? token, string? email)
+        {
+            if (token == null || email == null)
+            {
+                TempData["Error"] = "Invalid password reset link.";
+                return RedirectToAction("Login");
+            }
+            var vm = new ResetPasswordViewModel { Token = token, Email = email };
+            return View(vm);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel vm)
+        {
+            if (!ModelState.IsValid) return View(vm);
+
+            var user = await _userManager.FindByEmailAsync(vm.Email);
+            if (user == null)
+            {
+                return RedirectToAction(nameof(ResetPasswordConfirmation));
+            }
+
+            var result = await _userManager.ResetPasswordAsync(user, vm.Token, vm.NewPassword);
+            if (result.Succeeded)
+            {
+                TempData["Success"] = "Your password has been reset. Please log in with your new password.";
+                return RedirectToAction(nameof(ResetPasswordConfirmation));
+            }
+
+            foreach (var error in result.Errors)
+                ModelState.AddModelError(string.Empty, error.Description);
+
+            return View(vm);
+        }
+
+        [HttpGet]
+        public IActionResult ResetPasswordConfirmation() => View();
     }
 }

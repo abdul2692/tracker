@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" id="htmlRoot">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -18,6 +18,13 @@
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <!-- Theme init: apply before paint to prevent flash -->
+    <script>
+        (function () {
+            var t = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', t);
+        })();
+    </script>
 </head>
 <body>
     @if (User.Identity?.IsAuthenticated == true)
@@ -145,10 +152,10 @@
                 </div>
 
                 <div class="navbar-actions">
-                    <a asp-controller="Income" asp-action="Create" class="btn btn-add-quick me-2" title="Add Income">
-                        <i class="bi bi-plus-circle"></i>
-                        <span class="d-none d-md-inline">Add</span>
-                    </a>
+                    <!-- Theme Toggle -->
+                    <button class="theme-toggle-btn" id="themeToggle" title="Toggle Light/Dark Mode" aria-label="Toggle theme">
+                        <i class="bi bi-sun-fill" id="themeIcon"></i>
+                    </button>
                     <div class="dropdown">
                         <button class="btn-user-avatar dropdown-toggle" data-bs-toggle="dropdown" id="userMenu">
                             <span>@(User.Identity.Name?.Substring(0, 1).ToUpper() ?? "U")</span>
@@ -210,6 +217,10 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- Expose user currency to JS (for chart callbacks etc.) -->
+    <script>
+        window.CURRENCY_SYMBOL = '@(ViewBag.CurrencySymbol ?? "£")';
+    </script>
     <!-- Custom JS -->
     <script src="~/js/site.js" asp-append-version="true"></script>
 

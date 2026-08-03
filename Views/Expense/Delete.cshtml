@@ -1,4 +1,4 @@
-@model SpendingTracker.Models.Expense
+﻿@model SpendingTracker.Models.Expense
 @{
     ViewData["Title"] = "Delete Expense";
 }
@@ -32,7 +32,7 @@
                     </div>
                     <div class="detail-row">
                         <span class="detail-label">Amount</span>
-                        <span class="detail-value text-danger fw-600">-$@Model.Amount.ToString("N2")</span>
+                        <span class="detail-value text-danger fw-600">-@ViewBag.CurrencySymbol@Model.Amount.ToString("N2")</span>
                     </div>
                     <div class="detail-row">
                         <span class="detail-label">Date</span>
@@ -63,3 +63,4 @@
         </div>
     </div>
 </div>
+

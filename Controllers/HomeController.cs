@@ -8,15 +8,14 @@ using SpendingTracker.ViewModels;
 namespace SpendingTracker.Controllers
 {
     [Authorize]
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
         private readonly IDashboardService _dashboardService;
-        private readonly UserManager<ApplicationUser> _userManager;
 
         public HomeController(IDashboardService dashboardService, UserManager<ApplicationUser> userManager)
+            : base(userManager)
         {
             _dashboardService = dashboardService;
-            _userManager = userManager;
         }
 
         public async Task<IActionResult> Index()

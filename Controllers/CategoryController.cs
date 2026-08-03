@@ -8,15 +8,14 @@ using SpendingTracker.ViewModels;
 namespace SpendingTracker.Controllers
 {
     [Authorize]
-    public class CategoryController : Controller
+    public class CategoryController : BaseController
     {
         private readonly ICategoryService _categoryService;
-        private readonly UserManager<ApplicationUser> _userManager;
 
         public CategoryController(ICategoryService categoryService, UserManager<ApplicationUser> userManager)
+            : base(userManager)
         {
             _categoryService = categoryService;
-            _userManager = userManager;
         }
 
         public async Task<IActionResult> Index()

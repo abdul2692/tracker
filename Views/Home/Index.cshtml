@@ -1,4 +1,4 @@
-@model SpendingTracker.ViewModels.DashboardViewModel
+﻿@model SpendingTracker.ViewModels.DashboardViewModel
 @{
     ViewData["Title"] = "Dashboard";
 }
@@ -25,8 +25,8 @@
             <div class="stat-icon"><i class="bi bi-arrow-down-circle-fill"></i></div>
             <div class="stat-content">
                 <span class="stat-label">Total Income</span>
-                <span class="stat-value">$@Model.TotalIncome.ToString("N2")</span>
-                <span class="stat-sub">This month: $@Model.MonthlyIncome.ToString("N2")</span>
+                <span class="stat-value">@ViewBag.CurrencySymbol@Model.TotalIncome.ToString("N2")</span>
+                <span class="stat-sub">This month: @ViewBag.CurrencySymbol@Model.MonthlyIncome.ToString("N2")</span>
             </div>
         </div>
     </div>
@@ -35,8 +35,8 @@
             <div class="stat-icon"><i class="bi bi-arrow-up-circle-fill"></i></div>
             <div class="stat-content">
                 <span class="stat-label">Total Expenses</span>
-                <span class="stat-value">$@Model.TotalExpenses.ToString("N2")</span>
-                <span class="stat-sub">This month: $@Model.MonthlyExpenses.ToString("N2")</span>
+                <span class="stat-value">@ViewBag.CurrencySymbol@Model.TotalExpenses.ToString("N2")</span>
+                <span class="stat-sub">This month: @ViewBag.CurrencySymbol@Model.MonthlyExpenses.ToString("N2")</span>
             </div>
         </div>
     </div>
@@ -45,8 +45,8 @@
             <div class="stat-icon"><i class="bi bi-wallet-fill"></i></div>
             <div class="stat-content">
                 <span class="stat-label">Net Balance</span>
-                <span class="stat-value">$@Model.Balance.ToString("N2")</span>
-                <span class="stat-sub">Monthly: $@Model.MonthlyBalance.ToString("N2")</span>
+                <span class="stat-value">@ViewBag.CurrencySymbol@Model.Balance.ToString("N2")</span>
+                <span class="stat-sub">Monthly: @ViewBag.CurrencySymbol@Model.MonthlyBalance.ToString("N2")</span>
             </div>
         </div>
     </div>
@@ -56,7 +56,7 @@
             <div class="stat-content">
                 <span class="stat-label">Top Spending</span>
                 <span class="stat-value">@Model.HighestSpendingCategory</span>
-                <span class="stat-sub">$@Model.HighestSpendingAmount.ToString("N2")</span>
+                <span class="stat-sub">@ViewBag.CurrencySymbol@Model.HighestSpendingAmount.ToString("N2")</span>
             </div>
         </div>
     </div>
@@ -115,8 +115,8 @@
                                      style="width: @Math.Min(status.PercentageUsed, 100)%"></div>
                             </div>
                             <div class="d-flex justify-content-between mt-1">
-                                <small class="text-muted">$@status.Spent.ToString("N2") spent</small>
-                                <small class="text-muted">$@status.Budget.Amount.ToString("N2") budget</small>
+                                <small class="text-muted">@ViewBag.CurrencySymbol@status.Spent.ToString("N2") spent</small>
+                                <small class="text-muted">@ViewBag.CurrencySymbol@status.Budget.Amount.ToString("N2") budget</small>
                             </div>
                         </div>
                     }
@@ -160,7 +160,7 @@
                                             </span>
                                         </td>
                                         <td class="text-muted">@expense.Date.ToString("MMM dd")</td>
-                                        <td class="text-end fw-600 text-danger">-$@expense.Amount.ToString("N2")</td>
+                                        <td class="text-end fw-600 text-danger">-@ViewBag.CurrencySymbol@expense.Amount.ToString("N2")</td>
                                     </tr>
                                 }
                             </tbody>
@@ -203,7 +203,7 @@
                     responsive: true, maintainAspectRatio: false,
                     plugins: {
                         legend: { position: 'bottom', labels: { padding: 16, color: '#a0aec0', font: { size: 11 } } },
-                        tooltip: { callbacks: { label: ctx => ` ${ctx.label}: $${ctx.raw.toFixed(2)}` } }
+                        tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${window.CURRENCY_SYMBOL}ctx.raw.toFixed(2)}` } }
                     },
                     cutout: '65%'
                 }
@@ -241,10 +241,11 @@
                     plugins: { legend: { labels: { color: '#a0aec0' } } },
                     scales: {
                         x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a0aec0' } },
-                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a0aec0', callback: v => '$' + v } }
+                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a0aec0', callback: v => window.CURRENCY_SYMBOL + v } }
                     }
                 }
             });
         }
     </script>
 }
+

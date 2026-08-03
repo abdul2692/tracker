@@ -1,4 +1,4 @@
-@model SpendingTracker.ViewModels.ReportViewModel
+﻿@model SpendingTracker.ViewModels.ReportViewModel
 @{
     ViewData["Title"] = "Reports — " + Model.PeriodLabel;
     var period = ViewBag.Period as string ?? "Monthly";
@@ -52,7 +52,7 @@
             <div class="stat-icon"><i class="bi bi-arrow-down-circle-fill"></i></div>
             <div class="stat-content">
                 <span class="stat-label">Total Income</span>
-                <span class="stat-value">$@Model.TotalIncome.ToString("N2")</span>
+                <span class="stat-value">@ViewBag.CurrencySymbol@Model.TotalIncome.ToString("N2")</span>
             </div>
         </div>
     </div>
@@ -61,7 +61,7 @@
             <div class="stat-icon"><i class="bi bi-arrow-up-circle-fill"></i></div>
             <div class="stat-content">
                 <span class="stat-label">Total Expenses</span>
-                <span class="stat-value">$@Model.TotalExpenses.ToString("N2")</span>
+                <span class="stat-value">@ViewBag.CurrencySymbol@Model.TotalExpenses.ToString("N2")</span>
             </div>
         </div>
     </div>
@@ -70,7 +70,7 @@
             <div class="stat-icon"><i class="bi bi-piggy-bank-fill"></i></div>
             <div class="stat-content">
                 <span class="stat-label">Net Savings</span>
-                <span class="stat-value">$@Model.NetSavings.ToString("N2")</span>
+                <span class="stat-value">@ViewBag.CurrencySymbol@Model.NetSavings.ToString("N2")</span>
             </div>
         </div>
     </div>
@@ -132,7 +132,7 @@
         <div class="card-custom">
             <div class="card-custom-header">
                 <h5 class="card-custom-title"><i class="bi bi-arrow-down-circle-fill me-2" style="color:var(--accent-green)"></i>Income (@Model.Incomes.Count()) entries</h5>
-                <span class="fw-700 text-success">+$@Model.TotalIncome.ToString("N2")</span>
+                <span class="fw-700 text-success">+@ViewBag.CurrencySymbol@Model.TotalIncome.ToString("N2")</span>
             </div>
             <div class="card-custom-body p-0">
                 @if (Model.Incomes.Any())
@@ -152,7 +152,7 @@
                                     <tr>
                                         <td class="fw-500">@inc.Source</td>
                                         <td class="text-muted">@inc.Date.ToString("MMM dd")</td>
-                                        <td class="text-end fw-600 text-success">+$@inc.Amount.ToString("N2")</td>
+                                        <td class="text-end fw-600 text-success">+@ViewBag.CurrencySymbol@inc.Amount.ToString("N2")</td>
                                     </tr>
                                 }
                             </tbody>
@@ -175,7 +175,7 @@
         <div class="card-custom">
             <div class="card-custom-header">
                 <h5 class="card-custom-title"><i class="bi bi-arrow-up-circle-fill me-2" style="color:var(--accent-red)"></i>Expenses (@Model.Expenses.Count()) entries</h5>
-                <span class="fw-700 text-danger">-$@Model.TotalExpenses.ToString("N2")</span>
+                <span class="fw-700 text-danger">-@ViewBag.CurrencySymbol@Model.TotalExpenses.ToString("N2")</span>
             </div>
             <div class="card-custom-body p-0">
                 @if (Model.Expenses.Any())
@@ -201,7 +201,7 @@
                                             </span>
                                         </td>
                                         <td class="text-muted">@exp.Date.ToString("MMM dd")</td>
-                                        <td class="text-end fw-600 text-danger">-$@exp.Amount.ToString("N2")</td>
+                                        <td class="text-end fw-600 text-danger">-@ViewBag.CurrencySymbol@exp.Amount.ToString("N2")</td>
                                     </tr>
                                 }
                             </tbody>
@@ -245,9 +245,9 @@
                 options: {
                     indexAxis: 'y',
                     responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ` $${Number(c.raw).toFixed(2)}` } } },
+                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ` ${window.CURRENCY_SYMBOL}Number(c.raw).toFixed(2)}` } } },
                     scales: {
-                        x: { grid: { color: gridColor }, ticks: { color: tickColor, callback: v => '$' + v } },
+                        x: { grid: { color: gridColor }, ticks: { color: tickColor, callback: v => window.CURRENCY_SYMBOL + v } },
                         y: { grid: { color: gridColor }, ticks: { color: tickColor } }
                     }
                 }
@@ -280,10 +280,11 @@
                     plugins: { legend: { labels: { color: tickColor } } },
                     scales: {
                         x: { grid: { color: gridColor }, ticks: { color: tickColor } },
-                        y: { grid: { color: gridColor }, ticks: { color: tickColor, callback: v => '$' + v } }
+                        y: { grid: { color: gridColor }, ticks: { color: tickColor, callback: v => window.CURRENCY_SYMBOL + v } }
                     }
                 }
             });
         }
     </script>
 }
+

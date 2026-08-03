@@ -937,3 +937,343 @@ a { text-decoration: none; color: inherit; }
     color: var(--accent-red);
     opacity: 0.7;
 }
+
+/* ---------------------------------------------------
+   LIGHT THEME — CSS Variable Overrides
+   --------------------------------------------------- */
+[data-theme="light"] {
+    --bg-primary:   #f0f4f8;
+    --bg-secondary: #ffffff;
+    --bg-card:      #ffffff;
+    --bg-hover:     #e8edf4;
+    --bg-input:     #f5f7fa;
+
+    --border-color: rgba(0,0,0,0.09);
+
+    --text-primary:   #1a1d2e;
+    --text-secondary: #4a5568;
+    --text-muted:     #9ca3af;
+
+    --shadow-sm: 0 2px 8px rgba(0,0,0,0.07);
+    --shadow-md: 0 4px 20px rgba(0,0,0,0.10);
+    --shadow-lg: 0 8px 40px rgba(0,0,0,0.14);
+}
+
+/* -- Light: top navbar ----------------------------- */
+[data-theme="light"] .top-navbar {
+    background: rgba(255,255,255,0.90);
+    border-bottom-color: rgba(0,0,0,0.08);
+}
+
+/* -- Light: search box ----------------------------- */
+[data-theme="light"] .search-input {
+    background: #f0f4f8;
+    border-color: rgba(0,0,0,0.1);
+    color: var(--text-primary);
+}
+[data-theme="light"] .search-input::placeholder { color: #9ca3af; }
+
+/* -- Light: tables --------------------------------- */
+[data-theme="light"] .table-custom {
+    color: var(--text-primary);
+}
+[data-theme="light"] .table-custom thead th {
+    background: rgba(0,0,0,0.025);
+    border-bottom-color: rgba(0,0,0,0.09);
+    color: #6b7280;
+}
+[data-theme="light"] .table-custom tbody td {
+    border-bottom-color: rgba(0,0,0,0.05);
+}
+[data-theme="light"] .table-custom tbody tr:hover {
+    background: rgba(0,0,0,0.02);
+}
+
+/* -- Light: budget progress track ------------------ */
+[data-theme="light"] .budget-progress {
+    background: rgba(0,0,0,0.07);
+}
+
+/* -- Light: dropdown menu -------------------------- */
+[data-theme="light"] .dropdown-menu {
+    background: #fff;
+    border-color: rgba(0,0,0,0.1);
+}
+[data-theme="light"] .dropdown-item:hover {
+    background: #f0f4f8;
+    color: var(--text-primary);
+}
+[data-theme="light"] .dropdown-header { color: #9ca3af; }
+[data-theme="light"] .dropdown-divider { border-color: rgba(0,0,0,0.08); }
+
+/* -- Light: form inputs ---------------------------- */
+[data-theme="light"] .form-control-custom,
+[data-theme="light"] .form-control-dark {
+    background: #f5f7fa;
+    border-color: rgba(0,0,0,0.1);
+    color: var(--text-primary);
+}
+[data-theme="light"] .form-control-custom:focus,
+[data-theme="light"] .form-control-dark:focus {
+    background: #fff;
+    border-color: var(--accent-blue);
+    color: var(--text-primary);
+}
+[data-theme="light"] .form-control-dark option {
+    background: #fff;
+    color: var(--text-primary);
+}
+[data-theme="light"] .form-check-input {
+    background-color: #f5f7fa;
+    border-color: rgba(0,0,0,0.2);
+}
+
+/* -- Light: toast ---------------------------------- */
+[data-theme="light"] .toast-success,
+[data-theme="light"] .toast-error {
+    background: #fff;
+}
+[data-theme="light"] .toast-header {
+    color: var(--text-primary);
+    border-bottom-color: rgba(0,0,0,0.08);
+}
+[data-theme="light"] .toast-body { color: var(--text-secondary); }
+
+/* -- Light: page-btn pagination ------------------- */
+[data-theme="light"] .page-btn {
+    background: #e8edf4;
+    color: var(--text-secondary);
+}
+[data-theme="light"] .page-btn:hover { background: var(--accent-blue); color: #fff; }
+
+/* -- Light: alerts --------------------------------- */
+[data-theme="light"] .alert-danger {
+    background: rgba(239,68,68,0.08);
+    border-color: rgba(239,68,68,0.2);
+}
+
+/* -- Light: card stat before overlay --------------- */
+[data-theme="light"] .stat-card {
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+
+/* -- Light: btn-secondary-custom ------------------- */
+[data-theme="light"] .btn-secondary-custom {
+    background: #e8edf4;
+    border-color: rgba(0,0,0,0.1);
+    color: var(--text-secondary);
+}
+[data-theme="light"] .btn-secondary-custom:hover {
+    background: #dce3ed;
+    color: var(--text-primary);
+}
+
+/* -- Light: auth card override --------------------- */
+[data-theme="light"] .auth-card {
+    background: #ffffff;
+    border-color: rgba(0,0,0,0.1);
+    box-shadow: 0 8px 40px rgba(0,0,0,0.12);
+}
+[data-theme="light"] .auth-body {
+    background: #f0f4f8;
+}
+[data-theme="light"] .form-check-label { color: var(--text-secondary); }
+
+/* ---------------------------------------------------
+   AUTH PAGE STYLES
+   (auth-body, auth-container, auth-brand, btn-auth, etc.)
+   --------------------------------------------------- */
+.auth-body {
+    background: var(--bg-primary);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    position: relative;
+}
+
+.auth-container {
+    width: 100%;
+    max-width: 440px;
+}
+
+.auth-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 2.5rem 2.25rem;
+    width: 100%;
+    box-shadow: var(--shadow-lg);
+    transition: var(--transition);
+}
+
+.auth-brand {
+    text-align: center;
+    margin-bottom: 1.75rem;
+}
+
+.brand-icon-lg {
+    font-size: 2.5rem;
+    background: var(--gradient-blue);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: block;
+    margin-bottom: 0.6rem;
+}
+
+.auth-title {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 0.3rem;
+    letter-spacing: -0.02em;
+}
+
+.auth-subtitle {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+}
+
+.auth-form { display: flex; flex-direction: column; gap: 0; }
+
+.btn-auth {
+    width: 100%;
+    background: var(--gradient-blue);
+    color: #fff;
+    border: none;
+    padding: 0.7rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1.25rem;
+    font-family: inherit;
+    letter-spacing: 0.01em;
+}
+.btn-auth:hover {
+    opacity: 0.92;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+    color: #fff;
+}
+
+.auth-footer {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 1.25rem;
+    margin-bottom: 0;
+}
+
+.auth-link {
+    color: var(--accent-blue);
+    font-weight: 600;
+    transition: var(--transition);
+    text-decoration: none;
+}
+.auth-link:hover { color: #6c63ff; text-decoration: underline; }
+
+/* -- Alert info (for dev reset link) --------------- */
+.alert-info {
+    background: rgba(79,142,247,0.1);
+    border: 1px solid rgba(79,142,247,0.3);
+    color: var(--accent-blue);
+    font-size: 0.85rem;
+    border-radius: 8px;
+    padding: 0.85rem 1rem;
+}
+[data-theme="light"] .alert-info {
+    background: rgba(79,142,247,0.08);
+    border-color: rgba(79,142,247,0.2);
+}
+
+/* ---------------------------------------------------
+   THEME TOGGLE BUTTON (in top navbar)
+   --------------------------------------------------- */
+.theme-toggle-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-hover);
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    transition: var(--transition);
+    flex-shrink: 0;
+}
+.theme-toggle-btn:hover {
+    background: var(--accent-blue);
+    color: #fff;
+    border-color: var(--accent-blue);
+    transform: rotate(20deg) scale(1.05);
+}
+
+/* -- Theme toggle on auth pages -------------------- */
+.theme-toggle-auth {
+    position: fixed;
+    top: 1.25rem;
+    right: 1.25rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.05rem;
+    transition: var(--transition);
+    z-index: 1000;
+    box-shadow: var(--shadow-sm);
+}
+.theme-toggle-auth:hover {
+    background: var(--accent-blue);
+    color: #fff;
+    border-color: var(--accent-blue);
+    transform: rotate(20deg) scale(1.05);
+}
+
+/* ---------------------------------------------------
+   PASSWORD REQUIREMENTS CHECKLIST
+   --------------------------------------------------- */
+.pw-requirements {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 0.6rem 0.75rem;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 0.78rem;
+}
+
+.pw-req {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: var(--text-muted);
+    transition: color 0.2s ease;
+    font-weight: 500;
+}
+
+.pw-req .pw-fail { color: var(--accent-red); font-size: 0.78rem; }
+.pw-req .pw-pass { color: var(--accent-green); font-size: 0.78rem; }
+
+.pw-req.met { color: var(--accent-green); }
+
+[data-theme="light"] .pw-requirements {
+    background: #f5f7fa;
+    border-color: rgba(0,0,0,0.08);
+}

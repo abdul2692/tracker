@@ -7,17 +7,16 @@ using SpendingTracker.Services.Interfaces;
 namespace SpendingTracker.Controllers
 {
     [Authorize]
-    public class AnalyticsController : Controller
+    public class AnalyticsController : BaseController
     {
         private readonly IExpenseService _expenseService;
         private readonly IIncomeService _incomeService;
-        private readonly UserManager<ApplicationUser> _userManager;
 
         public AnalyticsController(IExpenseService expenseService, IIncomeService incomeService, UserManager<ApplicationUser> userManager)
+            : base(userManager)
         {
             _expenseService = expenseService;
             _incomeService = incomeService;
-            _userManager = userManager;
         }
 
         public async Task<IActionResult> Index()

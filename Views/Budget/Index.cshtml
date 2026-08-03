@@ -1,4 +1,4 @@
-@model IEnumerable<SpendingTracker.ViewModels.BudgetStatusViewModel>
+﻿@model IEnumerable<SpendingTracker.ViewModels.BudgetStatusViewModel>
 @{
     ViewData["Title"] = "Budgets";
 }
@@ -58,7 +58,7 @@
                         <div class="d-flex justify-content-between">
                             <div>
                                 <span class="text-muted small">Spent</span>
-                                <div class="fw-600 @(status.IsOverBudget ? "text-danger" : "")">$@status.Spent.ToString("N2")</div>
+                                <div class="fw-600 @(status.IsOverBudget ? "text-danger" : "")">@ViewBag.CurrencySymbol@status.Spent.ToString("N2")</div>
                             </div>
                             <div class="text-center">
                                 <span class="text-muted small">Used</span>
@@ -66,7 +66,7 @@
                             </div>
                             <div class="text-end">
                                 <span class="text-muted small">Budget</span>
-                                <div class="fw-600">$@status.Budget.Amount.ToString("N2")</div>
+                                <div class="fw-600">@ViewBag.CurrencySymbol@status.Budget.Amount.ToString("N2")</div>
                             </div>
                         </div>
 
@@ -74,14 +74,14 @@
                         {
                             <div class="alert alert-danger-soft mt-3 mb-0 py-2 px-3 rounded-3 small">
                                 <i class="bi bi-exclamation-triangle-fill me-1"></i>
-                                You've exceeded this budget by <strong>$@((status.Spent - status.Budget.Amount).ToString("N2"))</strong>
+                                You've exceeded this budget by <strong>@ViewBag.CurrencySymbol@((status.Spent - status.Budget.Amount).ToString("N2"))</strong>
                             </div>
                         }
                         else if (status.IsWarning)
                         {
                             <div class="alert alert-warning-soft mt-3 mb-0 py-2 px-3 rounded-3 small">
                                 <i class="bi bi-exclamation-circle-fill me-1"></i>
-                                Only <strong>$@status.Remaining.ToString("N2")</strong> remaining in this budget
+                                Only <strong>@ViewBag.CurrencySymbol@status.Remaining.ToString("N2")</strong> remaining in this budget
                             </div>
                         }
                     </div>
@@ -99,3 +99,4 @@ else
         <a asp-action="Create" class="btn btn-primary-custom mt-2"><i class="bi bi-plus-circle me-1"></i>Create Budget</a>
     </div>
 }
+

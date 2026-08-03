@@ -9,17 +9,16 @@ using SpendingTracker.ViewModels;
 namespace SpendingTracker.Controllers
 {
     [Authorize]
-    public class BudgetController : Controller
+    public class BudgetController : BaseController
     {
         private readonly IBudgetService _budgetService;
         private readonly ICategoryService _categoryService;
-        private readonly UserManager<ApplicationUser> _userManager;
 
         public BudgetController(IBudgetService budgetService, ICategoryService categoryService, UserManager<ApplicationUser> userManager)
+            : base(userManager)
         {
             _budgetService = budgetService;
             _categoryService = categoryService;
-            _userManager = userManager;
         }
 
         public async Task<IActionResult> Index()

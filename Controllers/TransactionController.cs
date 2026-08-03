@@ -8,20 +8,19 @@ using SpendingTracker.ViewModels;
 namespace SpendingTracker.Controllers
 {
     [Authorize]
-    public class TransactionController : Controller
+    public class TransactionController : BaseController
     {
         private readonly IIncomeService _incomeService;
         private readonly IExpenseService _expenseService;
         private readonly ICategoryService _categoryService;
-        private readonly UserManager<ApplicationUser> _userManager;
 
         public TransactionController(IIncomeService incomeService, IExpenseService expenseService,
             ICategoryService categoryService, UserManager<ApplicationUser> userManager)
+            : base(userManager)
         {
             _incomeService = incomeService;
             _expenseService = expenseService;
             _categoryService = categoryService;
-            _userManager = userManager;
         }
 
         public async Task<IActionResult> Index(int page = 1, string? search = null, string? sortBy = null,

@@ -7,15 +7,14 @@ using SpendingTracker.Services.Interfaces;
 namespace SpendingTracker.Controllers
 {
     [Authorize]
-    public class ReportController : Controller
+    public class ReportController : BaseController
     {
         private readonly IReportService _reportService;
-        private readonly UserManager<ApplicationUser> _userManager;
 
         public ReportController(IReportService reportService, UserManager<ApplicationUser> userManager)
+            : base(userManager)
         {
             _reportService = reportService;
-            _userManager = userManager;
         }
 
         public async Task<IActionResult> Index(string period = "Monthly", int? month = null, int? year = null)
