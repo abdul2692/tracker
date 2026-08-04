@@ -4636,11 +4636,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\abdul\\OneDrive\\Desktop\\tracker\\SpendingTracker.csproj",
+      "projectUniqueName": "C:\\tracker\\SpendingTracker.csproj",
       "projectName": "SpendingTracker",
-      "projectPath": "C:\\Users\\abdul\\OneDrive\\Desktop\\tracker\\SpendingTracker.csproj",
+      "projectPath": "C:\\tracker\\SpendingTracker.csproj",
       "packagesPath": "C:\\Users\\abdul\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\abdul\\OneDrive\\Desktop\\tracker\\obj\\",
+      "outputPath": "C:\\tracker\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\abdul\\AppData\\Roaming\\NuGet\\NuGet.Config"

@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "nvV5Aw5NBoevUP5SCnQFIE9PIcpeCsP4XsK+pA8NOBs=",
+  "Hash": "Pe0TagHMtuGL04vCPF97v6GI+4EW1W4fAcBJgzjJF78=",
   "Source": "SpendingTracker",
   "BasePath": "_content/SpendingTracker",
   "Mode": "Default",
@@ -10,17 +10,17 @@
     {
       "Name": "SpendingTracker\\wwwroot",
       "Source": "SpendingTracker",
-      "ContentRoot": "C:\\Users\\abdul\\OneDrive\\Desktop\\tracker\\wwwroot\\",
+      "ContentRoot": "C:\\tracker\\wwwroot\\",
       "BasePath": "_content/SpendingTracker",
       "Pattern": "**"
     }
   ],
   "Assets": [
     {
-      "Identity": "C:\\Users\\abdul\\OneDrive\\Desktop\\tracker\\wwwroot\\css\\site.css",
+      "Identity": "C:\\tracker\\wwwroot\\css\\site.css",
       "SourceId": "SpendingTracker",
       "SourceType": "Discovered",
-      "ContentRoot": "C:\\Users\\abdul\\OneDrive\\Desktop\\tracker\\wwwroot\\",
+      "ContentRoot": "C:\\tracker\\wwwroot\\",
       "BasePath": "_content/SpendingTracker",
       "RelativePath": "css/site.css",
       "AssetKind": "All",
@@ -36,10 +36,10 @@
       "OriginalItemSpec": "wwwroot\\css\\site.css"
     },
     {
-      "Identity": "C:\\Users\\abdul\\OneDrive\\Desktop\\tracker\\wwwroot\\js\\site.js",
+      "Identity": "C:\\tracker\\wwwroot\\js\\site.js",
       "SourceId": "SpendingTracker",
       "SourceType": "Discovered",
-      "ContentRoot": "C:\\Users\\abdul\\OneDrive\\Desktop\\tracker\\wwwroot\\",
+      "ContentRoot": "C:\\tracker\\wwwroot\\",
       "BasePath": "_content/SpendingTracker",
       "RelativePath": "js/site.js",
       "AssetKind": "All",

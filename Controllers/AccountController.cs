@@ -40,13 +40,14 @@ namespace SpendingTracker.Controllers
                 Email = vm.Email,
                 FirstName = vm.FirstName,
                 LastName = vm.LastName,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                EmailConfirmed = true
             };
 
             var result = await _userManager.CreateAsync(user, vm.Password);
             if (result.Succeeded)
             {
-                TempData["Success"] = "Account created successfully. Please login to continue.";
+                TempData["Success"] = "Account created successfully. Please log in.";
                 return RedirectToAction("Login");
             }
 
@@ -69,13 +70,18 @@ namespace SpendingTracker.Controllers
         {
             if (!ModelState.IsValid) return View(vm);
 
-            var result = await _signInManager.PasswordSignInAsync(vm.Email, vm.Password, vm.RememberMe, lockoutOnFailure: false);
-            if (result.Succeeded)
+            var user = await _userManager.FindByEmailAsync(vm.Email);
+            if (user != null)
             {
-                TempData["Success"] = "Welcome back!";
-                if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-                    return Redirect(returnUrl);
-                return RedirectToAction("Index", "Home");
+                var passwordCheck = await _signInManager.CheckPasswordSignInAsync(user, vm.Password, lockoutOnFailure: false);
+                if (passwordCheck.Succeeded)
+                {
+                    await _signInManager.SignInAsync(user, vm.RememberMe);
+                    TempData["Success"] = "Welcome back!";
+                    if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                        return Redirect(returnUrl);
+                    return RedirectToAction("Index", "Home");
+                }
             }
 
             ModelState.AddModelError(string.Empty, "Invalid email or password.");
@@ -311,5 +317,85 @@ namespace SpendingTracker.Controllers
 
         [HttpGet]
         public IActionResult ResetPasswordConfirmation() => View();
+
+        [HttpGet]
+        public async Task<IActionResult> ConfirmEmail(string userId, string token)
+        {
+            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(token))
+            {
+                return RedirectToAction("Login");
+            }
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return NotFound($"Unable to load user with ID '{userId}'.");
+            }
+
+            try
+            {
+                var decodedTokenBytes = Microsoft.AspNetCore.WebUtilities.WebEncoders.Base64UrlDecode(token);
+                var decodedToken = System.Text.Encoding.UTF8.GetString(decodedTokenBytes);
+
+                var result = await _userManager.ConfirmEmailAsync(user, decodedToken);
+                if (result.Succeeded)
+                {
+                    TempData["Success"] = "Email verified successfully! You can now log in.";
+                }
+                else
+                {
+                    TempData["Error"] = "Error confirming your email: " + string.Join(", ", result.Errors.Select(e => e.Description));
+                }
+            }
+            catch (Exception)
+            {
+                TempData["Error"] = "Error confirming your email: Invalid confirmation token format.";
+            }
+
+            return RedirectToAction("Login");
+        }
+
+        [HttpGet]
+        public IActionResult ResendEmailConfirmation() => View();
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResendEmailConfirmation(ResendEmailConfirmationViewModel vm)
+        {
+            if (!ModelState.IsValid) return View(vm);
+
+            var user = await _userManager.FindByEmailAsync(vm.Email);
+            if (user == null)
+            {
+                TempData["Success"] = "Verification email sent if the account exists.";
+                return RedirectToAction("Login");
+            }
+
+            if (await _userManager.IsEmailConfirmedAsync(user))
+            {
+                TempData["Success"] = "This email is already verified. Please log in.";
+                return RedirectToAction("Login");
+            }
+
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            var code = Microsoft.AspNetCore.WebUtilities.WebEncoders.Base64UrlEncode(System.Text.Encoding.UTF8.GetBytes(token));
+            var confirmationLink = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, token = code }, Request.Scheme);
+
+            var emailBody = $@"
+                <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;'>
+                    <h2 style='color: #2b6cb0;'>Verify Your Email Address</h2>
+                    <p>Please click the button below to verify your email and activate your Expense Tracker account.</p>
+                    <div style='text-align: center; margin: 30px 0;'>
+                        <a href='{confirmationLink}' style='background-color: #3182ce; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;'>Verify Email</a>
+                    </div>
+                    <p style='font-size: 0.8em; color: #718096;'>If you cannot click the button above, copy and paste this URL into your browser:</p>
+                    <p style='font-size: 0.8em; color: #3182ce; word-break: break-all;'>{confirmationLink}</p>
+                </div>";
+
+            await _emailSender.SendEmailAsync(user.Email!, "Confirm your email - Expense Tracker", emailBody);
+
+            TempData["Success"] = "Verification email sent if the account exists.";
+            return RedirectToAction("Login");
+        }
     }
 }

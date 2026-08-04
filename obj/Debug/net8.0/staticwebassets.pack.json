@@ -1,11 +1,11 @@
 {
   "Files": [
     {
-      "Id": "C:\\Users\\abdul\\OneDrive\\Desktop\\tracker\\wwwroot\\css\\site.css",
+      "Id": "C:\\tracker\\wwwroot\\css\\site.css",
       "PackagePath": "staticwebassets\\css\\site.css"
     },
     {
-      "Id": "C:\\Users\\abdul\\OneDrive\\Desktop\\tracker\\wwwroot\\js\\site.js",
+      "Id": "C:\\tracker\\wwwroot\\js\\site.js",
       "PackagePath": "staticwebassets\\js\\site.js"
     },
     {

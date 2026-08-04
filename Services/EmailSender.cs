@@ -21,11 +21,14 @@ namespace SpendingTracker.Services
             var smtpPass = _config["Email:SmtpPass"];
             var fromEmail = _config["Email:FromEmail"] ?? "noreply@spendtracker.com";
 
-            if (string.IsNullOrWhiteSpace(smtpHost) || string.IsNullOrWhiteSpace(smtpUser))
+            if (string.IsNullOrWhiteSpace(smtpHost) || 
+                string.IsNullOrWhiteSpace(smtpUser) || 
+                (smtpUser != null && smtpUser.Contains("YOUR_GMAIL_USERNAME")) || 
+                (smtpPass != null && smtpPass.Contains("YOUR_GMAIL_APP_PASSWORD")))
             {
                 // Dev mode: log the email instead of sending
-                _logger.LogInformation(
-                    "DEV MODE - Email not sent. To: {To} | Subject: {Subject} | Body: {Body}",
+                _logger.LogWarning(
+                    "DEV MODE (Gmail placeholders detected) - To: {To} | Subject: {Subject}\nLink: {Body}",
                     email, subject, htmlMessage);
                 return;
             }
@@ -35,6 +38,7 @@ namespace SpendingTracker.Services
                 int port = int.TryParse(smtpPortStr, out var p) ? p : 587;
                 using var client = new System.Net.Mail.SmtpClient(smtpHost, port)
                 {
+                    UseDefaultCredentials = false,
                     Credentials = new System.Net.NetworkCredential(smtpUser, smtpPass),
                     EnableSsl = true
                 };
@@ -53,7 +57,8 @@ namespace SpendingTracker.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to send email to {To}", email);
+                _logger.LogError(ex, "Failed to send email to {To}. Reverting to Console fallback.", email);
+                _logger.LogWarning("EMAIL FALLBACK LINK - To: {To} | Body: {Body}", email, htmlMessage);
             }
         }
     }

@@ -118,5 +118,13 @@ namespace SpendingTracker.ViewModels
         [Compare("NewPassword", ErrorMessage = "Passwords do not match.")]
         public string ConfirmPassword { get; set; } = string.Empty;
     }
+
+    public class ResendEmailConfirmationViewModel
+    {
+        [Required]
+        [EmailAddress]
+        [Display(Name = "Email Address")]
+        public string Email { get; set; } = string.Empty;
+    }
 }
 
