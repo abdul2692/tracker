@@ -1,54 +1,78 @@
 @{
     ViewData["Title"] = "Analytics";
+    int curMonth = ViewBag.SelectedMonth ?? DateTime.Now.Month;
+    int curYear = ViewBag.SelectedYear ?? DateTime.Now.Year;
+    var monthName = System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(curMonth);
 }
 
-<div class="page-header">
+<div class="page-header d-flex flex-wrap justify-content-between align-items-center gap-3">
     <div>
-        <h1 class="page-title">Analytics</h1>
-        <p class="page-subtitle">Visual insights into your financial data</p>
+        <h1 class="page-title">Expense Analytics</h1>
+        <p class="page-subtitle">Category-wise breakdown & financial analytics for @monthName @curYear</p>
+    </div>
+    <div>
+        <form method="get" asp-action="Index" class="d-flex align-items-center gap-2">
+            <select name="month" class="form-select form-select-sm form-control-dark" onchange="this.form.submit()">
+                @for (int m = 1; m <= 12; m++)
+                {
+                    <option value="@m" selected="@(m == curMonth)">@System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(m)</option>
+                }
+            </select>
+            <select name="year" class="form-select form-select-sm form-control-dark" onchange="this.form.submit()">
+                @for (int y = DateTime.Now.Year - 3; y <= DateTime.Now.Year + 1; y++)
+                {
+                    <option value="@y" selected="@(y == curYear)">@y</option>
+                }
+            </select>
+        </form>
     </div>
 </div>
 
+<!-- Section: Amount by Category (Horizontal Bar Chart) -->
 <div class="row g-4 mb-4">
-    <!-- Pie Chart -->
-    <div class="col-12 col-lg-5">
+    <div class="col-12 col-xl-7">
         <div class="card-custom h-100">
             <div class="card-custom-header">
-                <h5 class="card-custom-title"><i class="bi bi-pie-chart-fill me-2"></i>Expenses by Category</h5>
+                <h5 class="card-custom-title"><i class="bi bi-bar-chart-line-fill me-2"></i>Amount by Category</h5>
             </div>
-            <div class="card-custom-body">
-                <div class="chart-container">
-                    <canvas id="categoryPie"></canvas>
+            <div class="card-custom-body position-relative" id="categoryChartContainer">
+                <div class="chart-container-lg">
+                    <canvas id="amountByCategoryChart"></canvas>
+                </div>
+                <div id="noDataMessage" class="empty-state py-5 d-none">
+                    <i class="bi bi-bar-chart empty-icon fs-1 text-muted mb-3 d-block"></i>
+                    <h5 class="fw-600">No expense data available for the selected period.</h5>
+                    <p class="text-muted small">Add expenses for @monthName @curYear to view category analytics.</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Bar Chart -->
-    <div class="col-12 col-lg-7">
+    <!-- Doughnut Category Breakdown -->
+    <div class="col-12 col-xl-5">
         <div class="card-custom h-100">
             <div class="card-custom-header">
-                <h5 class="card-custom-title"><i class="bi bi-bar-chart-fill me-2"></i>Monthly Spending (12 Months)</h5>
+                <h5 class="card-custom-title"><i class="bi bi-pie-chart-fill me-2"></i>Category Share</h5>
             </div>
-            <div class="card-custom-body">
-                <div class="chart-container">
-                    <canvas id="monthlyBar"></canvas>
+            <div class="card-custom-body" id="pieChartContainer">
+                <div class="chart-container-lg">
+                    <canvas id="categorySharePie"></canvas>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Line Chart -->
+<!-- Section: Income vs Expense Trend -->
 <div class="row g-4">
     <div class="col-12">
         <div class="card-custom">
             <div class="card-custom-header">
-                <h5 class="card-custom-title"><i class="bi bi-graph-up-arrow me-2"></i>Income vs Expenses Trend (12 Months)</h5>
+                <h5 class="card-custom-title"><i class="bi bi-graph-up-arrow me-2"></i>12-Month Income vs Expenses Trend</h5>
             </div>
             <div class="card-custom-body">
                 <div class="chart-container-lg">
-                    <canvas id="trendLine"></canvas>
+                    <canvas id="trendLineChart"></canvas>
                 </div>
             </div>
         </div>
@@ -57,100 +81,185 @@
 
 @section Scripts {
     <script>
-        const categoryDataRaw = @Html.Raw(ViewBag.ExpensesByCategory);
-        const trendDataRaw = @Html.Raw(ViewBag.MonthlyTrend);
+        const categoryDataRaw = @Html.Raw(ViewBag.CategoryStatsJson ?? "[]");
+        const trendDataRaw = @Html.Raw(ViewBag.MonthlyTrendJson ?? "[]");
 
-        const chartColors = ['#FF6384','#36A2EB','#FFCE56','#4BC0C0','#9966FF','#FF9F40','#C9CBCF','#97BBCD','#10b981','#f59e0b'];
-        const gridColor = 'rgba(255,255,255,0.05)';
-        const tickColor = '#a0aec0';
+        let categoryBarChartInstance = null;
+        let categoryPieChartInstance = null;
+        let trendLineChartInstance = null;
 
-        // Pie Chart
-        const pieCtx = document.getElementById('categoryPie');
-        const catLabels = Object.keys(categoryDataRaw);
-        const catValues = Object.values(categoryDataRaw);
+        function getThemeColors() {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            return {
+                gridColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)',
+                textColor: isDark ? '#cbd5e1' : '#475569',
+                labelColor: isDark ? '#f8fafc' : '#0f172a'
+            };
+        }
 
-        if (catLabels.length > 0) {
-            new Chart(pieCtx, {
-                type: 'doughnut',
+        // Custom Chart.js Plugin to draw exact amount text at the end of each horizontal bar
+        const barEndAmountPlugin = {
+            id: 'barEndAmountPlugin',
+            afterDatasetsDraw(chart, args, options) {
+                const { ctx, data } = chart;
+                ctx.save();
+                chart.getDatasetMeta(0).data.forEach((bar, index) => {
+                    const value = data.datasets[0].data[index];
+                    if (value !== undefined && value !== null) {
+                        const formattedText = window.formatCurrency(value);
+                        ctx.font = '600 12px Inter, sans-serif';
+                        ctx.fillStyle = getThemeColors().labelColor;
+                        ctx.textAlign = 'left';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(formattedText, bar.x + 8, bar.y);
+                    }
+                });
+                ctx.restore();
+            }
+        };
+
+        function renderCategoryCharts(data) {
+            const chartCanvas = document.getElementById('amountByCategoryChart');
+            const noDataMsg = document.getElementById('noDataMessage');
+            const pieCanvas = document.getElementById('categorySharePie');
+
+            if (!data || data.length === 0) {
+                if (chartCanvas) chartCanvas.classList.add('d-none');
+                if (noDataMsg) noDataMsg.classList.remove('d-none');
+                if (pieCanvas) pieCanvas.parentElement.innerHTML = '<div class="empty-state py-5"><i class="bi bi-pie-chart fs-1 text-muted mb-3 d-block"></i><h5 class="fw-600">No expense data available for the selected period.</h5></div>';
+                return;
+            }
+
+            if (chartCanvas) chartCanvas.classList.remove('d-none');
+            if (noDataMsg) noDataMsg.classList.add('d-none');
+
+            const labels = data.map(item => item.Category);
+            const amounts = data.map(item => item.Amount);
+            const colors = data.map(item => item.Color || '#3b82f6');
+            const theme = getThemeColors();
+
+            // 1. Horizontal Bar Chart ("Amount by Category")
+            if (categoryBarChartInstance) categoryBarChartInstance.destroy();
+            categoryBarChartInstance = new Chart(chartCanvas, {
+                type: 'bar',
                 data: {
-                    labels: catLabels,
+                    labels: labels,
                     datasets: [{
-                        data: catValues,
-                        backgroundColor: chartColors.slice(0, catLabels.length),
-                        borderWidth: 0,
-                        hoverOffset: 10
+                        label: 'Expense Amount',
+                        data: amounts,
+                        backgroundColor: colors,
+                        borderRadius: 6,
+                        barThickness: 24
                     }]
                 },
+                plugins: [barEndAmountPlugin],
                 options: {
-                    responsive: true, maintainAspectRatio: false,
-                    cutout: '60%',
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: {
+                        padding: { right: 80 }
+                    },
                     plugins: {
-                        legend: { position: 'bottom', labels: { color: tickColor, padding: 16, font: { size: 12 } } },
-                        tooltip: { callbacks: { label: ctx => ` ${ctx.label}: $${Number(ctx.raw).toFixed(2)}` } }
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => ` Total: ${window.formatCurrency(ctx.raw)}`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: theme.gridColor },
+                            ticks: { color: theme.textColor, callback: v => window.formatCurrency(v) }
+                        },
+                        y: {
+                            grid: { display: false },
+                            ticks: { color: theme.textColor, font: { weight: '500' } }
+                        }
                     }
                 }
             });
-        } else {
-            pieCtx.parentElement.innerHTML = '<div class="empty-state"><i class="bi bi-pie-chart empty-icon"></i><p>No data available</p></div>';
+
+            // 2. Doughnut Share Chart
+            if (categoryPieChartInstance) categoryPieChartInstance.destroy();
+            if (pieCanvas) {
+                categoryPieChartInstance = new Chart(pieCanvas, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: amounts,
+                            backgroundColor: colors,
+                            borderWidth: 0,
+                            hoverOffset: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '65%',
+                        plugins: {
+                            legend: { position: 'bottom', labels: { color: theme.textColor, padding: 14 } },
+                            tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${window.formatCurrency(ctx.raw)}` } }
+                        }
+                    }
+                });
+            }
         }
 
-        // Bar Chart
-        const barCtx = document.getElementById('monthlyBar');
-        new Chart(barCtx, {
-            type: 'bar',
-            data: {
-                labels: trendDataRaw.map(d => d.Month),
-                datasets: [{
-                    label: 'Expenses',
-                    data: trendDataRaw.map(d => d.Expenses),
-                    backgroundColor: 'rgba(239,68,68,0.8)',
-                    borderRadius: 6,
-                    borderSkipped: false
-                }]
-            },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                plugins: { legend: { labels: { color: tickColor } } },
-                scales: {
-                    x: { grid: { color: gridColor }, ticks: { color: tickColor } },
-                    y: { grid: { color: gridColor }, ticks: { color: tickColor, callback: v => '$' + v } }
-                }
-            }
-        });
+        function renderTrendChart(trendData) {
+            const lineCtx = document.getElementById('trendLineChart');
+            if (!lineCtx) return;
+            const theme = getThemeColors();
 
-        // Line Chart
-        const lineCtx = document.getElementById('trendLine');
-        new Chart(lineCtx, {
-            type: 'line',
-            data: {
-                labels: trendDataRaw.map(d => d.Month),
-                datasets: [
-                    {
-                        label: 'Income',
-                        data: trendDataRaw.map(d => d.Income),
-                        borderColor: '#10b981',
-                        backgroundColor: 'rgba(16,185,129,0.1)',
-                        tension: 0.4, fill: true, pointRadius: 5,
-                        pointBackgroundColor: '#10b981'
-                    },
-                    {
-                        label: 'Expenses',
-                        data: trendDataRaw.map(d => d.Expenses),
-                        borderColor: '#ef4444',
-                        backgroundColor: 'rgba(239,68,68,0.1)',
-                        tension: 0.4, fill: true, pointRadius: 5,
-                        pointBackgroundColor: '#ef4444'
+            if (trendLineChartInstance) trendLineChartInstance.destroy();
+            trendLineChartInstance = new Chart(lineCtx, {
+                type: 'line',
+                data: {
+                    labels: trendData.map(d => d.Month),
+                    datasets: [
+                        {
+                            label: 'Income',
+                            data: trendData.map(d => d.Income),
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16,185,129,0.1)',
+                            tension: 0.4, fill: true, pointRadius: 4
+                        },
+                        {
+                            label: 'Expenses',
+                            data: trendData.map(d => d.Expenses),
+                            borderColor: '#ef4444',
+                            backgroundColor: 'rgba(239,68,68,0.1)',
+                            tension: 0.4, fill: true, pointRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: theme.textColor } } },
+                    scales: {
+                        x: { grid: { color: theme.gridColor }, ticks: { color: theme.textColor } },
+                        y: { grid: { color: theme.gridColor }, ticks: { color: theme.textColor, callback: v => window.formatCurrency(v) } }
                     }
-                ]
-            },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                interaction: { mode: 'index', intersect: false },
-                plugins: { legend: { labels: { color: tickColor } } },
-                scales: {
-                    x: { grid: { color: gridColor }, ticks: { color: tickColor } },
-                    y: { grid: { color: gridColor }, ticks: { color: tickColor, callback: v => '$' + v } }
                 }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCategoryCharts(categoryDataRaw);
+            renderTrendChart(trendDataRaw);
+
+            // Theme toggle listener to refresh chart colors dynamically
+            const themeToggleBtn = document.getElementById('themeToggle');
+            if (themeToggleBtn) {
+                themeToggleBtn.addEventListener('click', () => {
+                    setTimeout(() => {
+                        renderCategoryCharts(categoryDataRaw);
+                        renderTrendChart(trendDataRaw);
+                    }, 100);
+                });
             }
         });
     </script>

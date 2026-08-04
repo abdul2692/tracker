@@ -1,4 +1,4 @@
-﻿@model SpendingTracker.ViewModels.ReportViewModel
+@model SpendingTracker.ViewModels.ReportViewModel
 @{
     ViewData["Title"] = "Reports — " + Model.PeriodLabel;
     var period = ViewBag.Period as string ?? "Monthly";
@@ -245,9 +245,9 @@
                 options: {
                     indexAxis: 'y',
                     responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ` ${window.CURRENCY_SYMBOL}Number(c.raw).toFixed(2)}` } } },
+                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ` ${window.formatCurrency(c.raw)}` } } },
                     scales: {
-                        x: { grid: { color: gridColor }, ticks: { color: tickColor, callback: v => window.CURRENCY_SYMBOL + v } },
+                        x: { grid: { color: gridColor }, ticks: { color: tickColor, callback: v => window.formatCurrency(v) } },
                         y: { grid: { color: gridColor }, ticks: { color: tickColor } }
                     }
                 }
@@ -280,7 +280,7 @@
                     plugins: { legend: { labels: { color: tickColor } } },
                     scales: {
                         x: { grid: { color: gridColor }, ticks: { color: tickColor } },
-                        y: { grid: { color: gridColor }, ticks: { color: tickColor, callback: v => window.CURRENCY_SYMBOL + v } }
+                        y: { grid: { color: gridColor }, ticks: { color: tickColor, callback: v => window.formatCurrency(v) } }
                     }
                 }
             });

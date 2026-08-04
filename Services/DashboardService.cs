@@ -17,18 +17,31 @@ namespace SpendingTracker.Services
             _budgetService = budgetService;
         }
 
-        public async Task<DashboardViewModel> GetDashboardDataAsync(string userId)
+        public async Task<DashboardViewModel> GetDashboardDataAsync(string userId, int? month = null, int? year = null)
         {
             var now = DateTime.Now;
-            var vm = new DashboardViewModel();
+            int targetMonth = month ?? now.Month;
+            int targetYear = year ?? now.Year;
 
-            vm.TotalIncome = await _incomeService.GetTotalIncomeAsync(userId);
-            vm.TotalExpenses = await _expenseService.GetTotalExpensesAsync(userId);
-            vm.MonthlyIncome = await _incomeService.GetMonthlyIncomeAsync(userId, now.Month, now.Year);
-            vm.MonthlyExpenses = await _expenseService.GetMonthlyExpensesAsync(userId, now.Month, now.Year);
-            vm.RecentExpenses = await _expenseService.GetRecentExpensesAsync(userId, 8);
-            vm.ExpensesByCategory = await _expenseService.GetExpensesByCategoryAsync(userId);
-            vm.BudgetStatuses = await _budgetService.GetBudgetStatusAsync(userId, now.Month, now.Year);
+            var vm = new DashboardViewModel
+            {
+                SelectedMonth = targetMonth,
+                SelectedYear = targetYear
+            };
+
+            var monthFrom = new DateTime(targetYear, targetMonth, 1);
+            var monthTo = monthFrom.AddMonths(1).AddDays(-1);
+
+            vm.MonthlyIncome = await _incomeService.GetMonthlyIncomeAsync(userId, targetMonth, targetYear);
+            vm.MonthlyExpenses = await _expenseService.GetMonthlyExpensesAsync(userId, targetMonth, targetYear);
+
+            vm.TotalIncome = vm.MonthlyIncome;
+            vm.TotalExpenses = vm.MonthlyExpenses;
+
+            var monthExpensesList = (await _expenseService.GetByDateRangeAsync(userId, monthFrom, monthTo)).ToList();
+            vm.RecentExpenses = monthExpensesList.OrderByDescending(e => e.Date).Take(8);
+            vm.ExpensesByCategory = await _expenseService.GetExpensesByCategoryAsync(userId, monthFrom, monthTo);
+            vm.BudgetStatuses = await _budgetService.GetBudgetStatusAsync(userId, targetMonth, targetYear);
 
             if (vm.ExpensesByCategory.Any())
             {
@@ -36,12 +49,18 @@ namespace SpendingTracker.Services
                 vm.HighestSpendingCategory = top.Key;
                 vm.HighestSpendingAmount = top.Value;
             }
+            else
+            {
+                vm.HighestSpendingCategory = "N/A";
+                vm.HighestSpendingAmount = 0;
+            }
 
-            // Build 6-month trend
+            // Build 6-month trend ending at target period
             vm.MonthlyTrend = new List<MonthlyTrendPoint>();
+            var endDate = new DateTime(targetYear, targetMonth, 1);
             for (int i = 5; i >= 0; i--)
             {
-                var date = now.AddMonths(-i);
+                var date = endDate.AddMonths(-i);
                 var income = await _incomeService.GetMonthlyIncomeAsync(userId, date.Month, date.Year);
                 var expenses = await _expenseService.GetMonthlyExpensesAsync(userId, date.Month, date.Year);
                 vm.MonthlyTrend.Add(new MonthlyTrendPoint

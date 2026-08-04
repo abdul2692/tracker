@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "c:\\Users\\abdul\\OneDrive\\Desktop\\tracker\\SpendingTracker.csproj": {}
+    "C:\\Users\\abdul\\OneDrive\\Desktop\\tracker\\SpendingTracker.csproj": {}
   },
   "projects": {
-    "c:\\Users\\abdul\\OneDrive\\Desktop\\tracker\\SpendingTracker.csproj": {
+    "C:\\Users\\abdul\\OneDrive\\Desktop\\tracker\\SpendingTracker.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\Users\\abdul\\OneDrive\\Desktop\\tracker\\SpendingTracker.csproj",
+        "projectUniqueName": "C:\\Users\\abdul\\OneDrive\\Desktop\\tracker\\SpendingTracker.csproj",
         "projectName": "SpendingTracker",
-        "projectPath": "c:\\Users\\abdul\\OneDrive\\Desktop\\tracker\\SpendingTracker.csproj",
+        "projectPath": "C:\\Users\\abdul\\OneDrive\\Desktop\\tracker\\SpendingTracker.csproj",
         "packagesPath": "C:\\Users\\abdul\\.nuget\\packages\\",
-        "outputPath": "c:\\Users\\abdul\\OneDrive\\Desktop\\tracker\\obj\\",
+        "outputPath": "C:\\Users\\abdul\\OneDrive\\Desktop\\tracker\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\abdul\\AppData\\Roaming\\NuGet\\NuGet.Config"

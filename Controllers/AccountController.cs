@@ -11,15 +11,18 @@ namespace SpendingTracker.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IEmailSender _emailSender;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            IWebHostEnvironment webHostEnvironment)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _emailSender = emailSender;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         [HttpGet]
@@ -43,9 +46,8 @@ namespace SpendingTracker.Controllers
             var result = await _userManager.CreateAsync(user, vm.Password);
             if (result.Succeeded)
             {
-                await _signInManager.SignInAsync(user, isPersistent: false);
-                TempData["Success"] = "Welcome to SpendingTracker! Your account has been created.";
-                return RedirectToAction("Index", "Home");
+                TempData["Success"] = "Account created successfully. Please login to continue.";
+                return RedirectToAction("Login");
             }
 
             foreach (var error in result.Errors)
@@ -100,7 +102,8 @@ namespace SpendingTracker.Controllers
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Email = user.Email,
-                Currency = user.Currency
+                Currency = user.Currency,
+                ExistingProfilePicture = user.ProfilePicture
             };
             return View(vm);
         }
@@ -110,10 +113,69 @@ namespace SpendingTracker.Controllers
         [Microsoft.AspNetCore.Authorization.Authorize]
         public async Task<IActionResult> EditProfile(EditProfileViewModel vm)
         {
-            if (!ModelState.IsValid) return View(vm);
-
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return NotFound();
+
+            if (!ModelState.IsValid)
+            {
+                vm.ExistingProfilePicture = user.ProfilePicture;
+                return View(vm);
+            }
+
+            // Handle photo deletion
+            if (vm.DeletePhoto && !string.IsNullOrEmpty(user.ProfilePicture))
+            {
+                var oldPath = Path.Combine(_webHostEnvironment.WebRootPath, user.ProfilePicture.TrimStart('/'));
+                if (System.IO.File.Exists(oldPath))
+                {
+                    try { System.IO.File.Delete(oldPath); } catch { }
+                }
+                user.ProfilePicture = null;
+            }
+
+            // Handle photo upload
+            if (vm.ProfilePhoto != null && vm.ProfilePhoto.Length > 0)
+            {
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
+                var ext = Path.GetExtension(vm.ProfilePhoto.FileName).ToLowerInvariant();
+                if (!allowedExtensions.Contains(ext))
+                {
+                    ModelState.AddModelError("ProfilePhoto", "Only JPG, JPEG, and PNG images are allowed.");
+                    vm.ExistingProfilePicture = user.ProfilePicture;
+                    return View(vm);
+                }
+
+                if (vm.ProfilePhoto.Length > 2 * 1024 * 1024)
+                {
+                    ModelState.AddModelError("ProfilePhoto", "Maximum allowed photo size is 2MB.");
+                    vm.ExistingProfilePicture = user.ProfilePicture;
+                    return View(vm);
+                }
+
+                var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "profiles");
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
+
+                if (!string.IsNullOrEmpty(user.ProfilePicture))
+                {
+                    var oldPath = Path.Combine(_webHostEnvironment.WebRootPath, user.ProfilePicture.TrimStart('/'));
+                    if (System.IO.File.Exists(oldPath))
+                    {
+                        try { System.IO.File.Delete(oldPath); } catch { }
+                    }
+                }
+
+                var fileName = $"{user.Id}_{Guid.NewGuid()}{ext}";
+                var filePath = Path.Combine(uploadsFolder, fileName);
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await vm.ProfilePhoto.CopyToAsync(stream);
+                }
+
+                user.ProfilePicture = $"/uploads/profiles/{fileName}";
+            }
 
             user.FirstName = vm.FirstName;
             user.LastName = vm.LastName;
@@ -124,6 +186,7 @@ namespace SpendingTracker.Controllers
             {
                 foreach (var e in updateResult.Errors)
                     ModelState.AddModelError(string.Empty, e.Description);
+                vm.ExistingProfilePicture = user.ProfilePicture;
                 return View(vm);
             }
 
@@ -135,6 +198,7 @@ namespace SpendingTracker.Controllers
                 {
                     foreach (var e in pwResult.Errors)
                         ModelState.AddModelError(string.Empty, e.Description);
+                    vm.ExistingProfilePicture = user.ProfilePicture;
                     return View(vm);
                 }
                 await _signInManager.RefreshSignInAsync(user);
@@ -142,6 +206,30 @@ namespace SpendingTracker.Controllers
 
             TempData["Success"] = "Profile updated successfully.";
             return RedirectToAction("Index", "Home");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Microsoft.AspNetCore.Authorization.Authorize]
+        public async Task<IActionResult> DeleteProfilePicture()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return NotFound();
+
+            if (!string.IsNullOrEmpty(user.ProfilePicture))
+            {
+                var oldPath = Path.Combine(_webHostEnvironment.WebRootPath, user.ProfilePicture.TrimStart('/'));
+                if (System.IO.File.Exists(oldPath))
+                {
+                    try { System.IO.File.Delete(oldPath); } catch { }
+                }
+                user.ProfilePicture = null;
+                await _userManager.UpdateAsync(user);
+                await _signInManager.RefreshSignInAsync(user);
+                TempData["Success"] = "Profile picture deleted successfully.";
+            }
+
+            return RedirectToAction(nameof(EditProfile));
         }
 
         // -- Forgot Password --------------------------------------------------

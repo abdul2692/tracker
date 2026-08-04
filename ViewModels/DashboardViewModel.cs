@@ -18,6 +18,9 @@ namespace SpendingTracker.ViewModels
         public IEnumerable<Expense> RecentExpenses { get; set; } = new List<Expense>();
         public IEnumerable<BudgetStatusViewModel> BudgetStatuses { get; set; } = new List<BudgetStatusViewModel>();
 
+        public int SelectedMonth { get; set; } = DateTime.Now.Month;
+        public int SelectedYear { get; set; } = DateTime.Now.Year;
+
         // Chart data
         public Dictionary<string, decimal> ExpensesByCategory { get; set; } = new();
         public List<MonthlyTrendPoint> MonthlyTrend { get; set; } = new();

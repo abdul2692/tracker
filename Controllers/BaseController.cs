@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using SpendingTracker.Models;
@@ -17,11 +17,11 @@ namespace SpendingTracker.Controllers
         private static readonly Dictionary<string, string> CurrencySymbols = new(StringComparer.OrdinalIgnoreCase)
         {
             { "USD", "$" },
-            { "GBP", "\u00A3" },
-            { "EUR", "\u20AC" },
-            { "INR", "\u20B9" },
-            { "PKR", "\u20A8" },
-            { "AED", "\u062F.\u0625" },
+            { "GBP", "£" },
+            { "EUR", "€" },
+            { "INR", "₹" },
+            { "PKR", "Rs" },
+            { "AED", "د.إ" },
             { "CAD", "CA$" },
             { "AUD", "A$" }
         };
@@ -36,11 +36,15 @@ namespace SpendingTracker.Controllers
 
                 ViewBag.CurrencyCode   = code;
                 ViewBag.CurrencySymbol = symbol;
+                ViewBag.ProfilePicture = user?.ProfilePicture;
+                ViewBag.UserFullName   = user != null && !string.IsNullOrWhiteSpace(user.FullName) ? user.FullName : User.Identity.Name;
             }
             else
             {
                 ViewBag.CurrencyCode   = "GBP";
                 ViewBag.CurrencySymbol = "\u00A3";
+                ViewBag.ProfilePicture = null;
+                ViewBag.UserFullName   = "";
             }
 
             await next();

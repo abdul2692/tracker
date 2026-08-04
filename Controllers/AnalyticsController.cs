@@ -19,27 +19,76 @@ namespace SpendingTracker.Controllers
             _incomeService = incomeService;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? month = null, int? year = null)
         {
             var userId = _userManager.GetUserId(User)!;
-            var now = DateTime.Now;
+            int m = month ?? DateTime.Now.Month;
+            int y = year ?? DateTime.Now.Year;
 
-            var expensesByCategory = await _expenseService.GetExpensesByCategoryAsync(userId);
+            var from = new DateTime(y, m, 1);
+            var to = from.AddMonths(1).AddDays(-1);
 
-            // Monthly trend - 12 months
+            var expenses = (await _expenseService.GetByDateRangeAsync(userId, from, to)).ToList();
+
+            // Group by category, sum amount, sort descending
+            var categoryStats = expenses
+                .GroupBy(e => new { e.Category.Name, e.Category.Color, e.Category.Icon })
+                .Select(g => new
+                {
+                    Category = g.Key.Name,
+                    Amount = g.Sum(e => e.Amount),
+                    Color = g.Key.Color,
+                    Icon = g.Key.Icon
+                })
+                .Where(c => c.Amount > 0)
+                .OrderByDescending(c => c.Amount)
+                .ToList();
+
+            // 12-Month trend
+            var trendAnchor = new DateTime(y, m, 1);
             var trend = new List<object>();
             for (int i = 11; i >= 0; i--)
             {
-                var date = now.AddMonths(-i);
+                var date = trendAnchor.AddMonths(-i);
                 var income = await _incomeService.GetMonthlyIncomeAsync(userId, date.Month, date.Year);
-                var expenses = await _expenseService.GetMonthlyExpensesAsync(userId, date.Month, date.Year);
-                trend.Add(new { Month = date.ToString("MMM yy"), Income = income, Expenses = expenses });
+                var mExpenses = await _expenseService.GetMonthlyExpensesAsync(userId, date.Month, date.Year);
+                trend.Add(new { Month = date.ToString("MMM yy"), Income = income, Expenses = mExpenses });
             }
 
-            ViewBag.ExpensesByCategory = System.Text.Json.JsonSerializer.Serialize(expensesByCategory);
-            ViewBag.MonthlyTrend = System.Text.Json.JsonSerializer.Serialize(trend);
+            ViewBag.SelectedMonth = m;
+            ViewBag.SelectedYear = y;
+            ViewBag.CategoryStatsJson = System.Text.Json.JsonSerializer.Serialize(categoryStats);
+            ViewBag.MonthlyTrendJson = System.Text.Json.JsonSerializer.Serialize(trend);
 
-            return View();
+            return View(categoryStats);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetCategoryData(int? month = null, int? year = null)
+        {
+            var userId = _userManager.GetUserId(User)!;
+            int m = month ?? DateTime.Now.Month;
+            int y = year ?? DateTime.Now.Year;
+
+            var from = new DateTime(y, m, 1);
+            var to = from.AddMonths(1).AddDays(-1);
+
+            var expenses = (await _expenseService.GetByDateRangeAsync(userId, from, to)).ToList();
+
+            var categoryStats = expenses
+                .GroupBy(e => new { e.Category.Name, e.Category.Color, e.Category.Icon })
+                .Select(g => new
+                {
+                    Category = g.Key.Name,
+                    Amount = g.Sum(e => e.Amount),
+                    Color = g.Key.Color,
+                    Icon = g.Key.Icon
+                })
+                .Where(c => c.Amount > 0)
+                .OrderByDescending(c => c.Amount)
+                .ToList();
+
+            return Json(categoryStats);
         }
     }
 }

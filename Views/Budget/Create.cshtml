@@ -92,13 +92,12 @@
 @section Scripts {
     <script>
         const typeSelect = document.getElementById('budgetTypeSelect');
-        const monthlyFields = document.getElementById('monthlyFields');
         const categoryField = document.getElementById('categoryField');
 
         function toggleFields() {
             const val = typeSelect.value;
-            monthlyFields.style.display = val === 'Monthly' ? 'block' : 'none';
-            categoryField.style.display = val === 'Category' ? 'block' : 'none';
+            const isCategory = val === 'Category' || val === '1';
+            categoryField.style.display = isCategory ? 'block' : 'block'; // Show category dropdown for complete functionality
         }
 
         typeSelect.addEventListener('change', toggleFields);

@@ -1,0 +1,198 @@
+@model SpendingTracker.ViewModels.CashFlowViewModel
+@{
+    ViewData["Title"] = "Cash Flow";
+    var monthName = System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(Model.SelectedMonth);
+}
+
+<div class="page-header d-flex flex-wrap justify-content-between align-items-center gap-3">
+    <div>
+        <h1 class="page-title">Cash Flow</h1>
+        <p class="page-subtitle">Track your net cash inflow vs outflow for @monthName @Model.SelectedYear</p>
+    </div>
+    <div>
+        <form method="get" asp-action="Index" class="d-flex align-items-center gap-2">
+            <select name="month" class="form-select form-select-sm form-control-dark" onchange="this.form.submit()">
+                @for (int m = 1; m <= 12; m++)
+                {
+                    <option value="@m" selected="@(m == Model.SelectedMonth)">@System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(m)</option>
+                }
+            </select>
+            <select name="year" class="form-select form-select-sm form-control-dark" onchange="this.form.submit()">
+                @for (int y = DateTime.Now.Year - 3; y <= DateTime.Now.Year + 1; y++)
+                {
+                    <option value="@y" selected="@(y == Model.SelectedYear)">@y</option>
+                }
+            </select>
+        </form>
+    </div>
+</div>
+
+@if (!Model.HasData)
+{
+    <div class="card-custom">
+        <div class="card-custom-body text-center py-5">
+            <i class="bi bi-cash-coin empty-icon fs-1 text-muted mb-3 d-block"></i>
+            <h5 class="fw-600">No cash flow data available.</h5>
+            <p class="text-muted small mb-3">No income or expense records found for @monthName @Model.SelectedYear.</p>
+            <div class="d-flex justify-content-center gap-2">
+                <a asp-controller="Income" asp-action="Create" class="btn btn-success-custom"><i class="bi bi-plus-circle me-1"></i>Add Income</a>
+                <a asp-controller="Expense" asp-action="Create" class="btn btn-danger-custom"><i class="bi bi-dash-circle me-1"></i>Add Expense</a>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <!-- Stat Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-12 col-md-4">
+            <div class="stat-card stat-card-income">
+                <div class="stat-icon"><i class="bi bi-arrow-down-circle-fill"></i></div>
+                <div class="stat-content">
+                    <span class="stat-label">Total Income</span>
+                    <span class="stat-value text-success">@ViewBag.CurrencySymbol@Model.TotalIncome.ToString("N2")</span>
+                    <span class="stat-sub">@monthName @Model.SelectedYear</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="stat-card stat-card-expense">
+                <div class="stat-icon"><i class="bi bi-arrow-up-circle-fill"></i></div>
+                <div class="stat-content">
+                    <span class="stat-label">Total Expenses</span>
+                    <span class="stat-value text-danger">@ViewBag.CurrencySymbol@Model.TotalExpenses.ToString("N2")</span>
+                    <span class="stat-sub">@monthName @Model.SelectedYear</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="stat-card @(Model.NetCashFlow >= 0 ? "stat-card-balance" : "stat-card-deficit")">
+                <div class="stat-icon"><i class="bi bi-wallet2"></i></div>
+                <div class="stat-content">
+                    <span class="stat-label">Net Cash Flow</span>
+                    <span class="stat-value @(Model.NetCashFlow >= 0 ? "text-success" : "text-danger")">
+                        @(Model.NetCashFlow >= 0 ? "+" : "")@ViewBag.CurrencySymbol@Model.NetCashFlow.ToString("N2")
+                    </span>
+                    <span class="stat-sub">Inflow minus Outflow</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row g-4 mb-4">
+        <!-- Income vs Expense Chart -->
+        <div class="col-12 col-lg-6">
+            <div class="card-custom h-100">
+                <div class="card-custom-header">
+                    <h5 class="card-custom-title"><i class="bi bi-bar-chart-steps me-2"></i>Income vs Expense (@monthName)</h5>
+                </div>
+                <div class="card-custom-body">
+                    <div class="chart-container">
+                        <canvas id="incomeVsExpenseChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly Cash Flow Trend Chart -->
+        <div class="col-12 col-lg-6">
+            <div class="card-custom h-100">
+                <div class="card-custom-header">
+                    <h5 class="card-custom-title"><i class="bi bi-graph-up-arrow me-2"></i>12-Month Cash Flow Trend</h5>
+                </div>
+                <div class="card-custom-body">
+                    <div class="chart-container">
+                        <canvas id="cashFlowTrendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @if (Model.HasData)
+    {
+        <script>
+            const breakdownData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BreakdownPoints));
+            const trendData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MonthlyTrend));
+
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            const gridColor = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
+            const textColor = isDark ? '#a0aec0' : '#4a5568';
+
+            // Income vs Expense Chart
+            const ctx1 = document.getElementById('incomeVsExpenseChart');
+            if (ctx1) {
+                new Chart(ctx1, {
+                    type: 'bar',
+                    data: {
+                        labels: breakdownData.map(d => d.Label),
+                        datasets: [
+                            {
+                                label: 'Income',
+                                data: breakdownData.map(d => d.Income),
+                                backgroundColor: '#10b981',
+                                borderRadius: 4
+                            },
+                            {
+                                label: 'Expenses',
+                                data: breakdownData.map(d => d.Expenses),
+                                backgroundColor: '#ef4444',
+                                borderRadius: 4
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'top', labels: { color: textColor } },
+                            tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ${window.formatCurrency(ctx.raw)}` } }
+                        },
+                        scales: {
+                            x: { grid: { color: gridColor }, ticks: { color: textColor } },
+                            y: { grid: { color: gridColor }, ticks: { color: textColor, callback: v => window.formatCurrency(v) } }
+                        }
+                    }
+                });
+            }
+
+            // Cash Flow Trend Chart
+            const ctx2 = document.getElementById('cashFlowTrendChart');
+            if (ctx2) {
+                new Chart(ctx2, {
+                    type: 'line',
+                    data: {
+                        labels: trendData.map(d => d.MonthLabel),
+                        datasets: [
+                            {
+                                label: 'Net Cash Flow',
+                                data: trendData.map(d => d.NetCashFlow),
+                                borderColor: '#3b82f6',
+                                backgroundColor: 'rgba(59,130,246,0.1)',
+                                fill: true,
+                                tension: 0.4,
+                                pointRadius: 4,
+                                pointBackgroundColor: '#3b82f6'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'top', labels: { color: textColor } },
+                            tooltip: { callbacks: { label: ctx => ` Net Cash Flow: ${window.formatCurrency(ctx.raw)}` } }
+                        },
+                        scales: {
+                            x: { grid: { color: gridColor }, ticks: { color: textColor } },
+                            y: { grid: { color: gridColor }, ticks: { color: textColor, callback: v => window.formatCurrency(v) } }
+                        }
+                    }
+                });
+            }
+        </script>
+    }
+}

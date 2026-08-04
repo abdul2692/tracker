@@ -21,11 +21,15 @@ namespace SpendingTracker.Controllers
             _categoryService = categoryService;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? month = null, int? year = null)
         {
             var userId = _userManager.GetUserId(User)!;
-            var now = DateTime.Now;
-            var statuses = await _budgetService.GetBudgetStatusAsync(userId, now.Month, now.Year);
+            var selectedMonth = month ?? DateTime.Now.Month;
+            var selectedYear = year ?? DateTime.Now.Year;
+            ViewBag.SelectedMonth = selectedMonth;
+            ViewBag.SelectedYear = selectedYear;
+
+            var statuses = await _budgetService.GetBudgetStatusAsync(userId, selectedMonth, selectedYear);
             return View(statuses);
         }
 

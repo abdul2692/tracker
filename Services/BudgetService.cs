@@ -71,24 +71,25 @@ namespace SpendingTracker.Services
             var budgets = await _budgetRepo.GetByUserIdAsync(userId);
             var result = new List<BudgetStatusViewModel>();
 
+            var from = new DateTime(year, month, 1);
+            var to = from.AddMonths(1).AddDays(-1);
+            var monthExpenses = await _expenseRepo.GetByUserIdAndDateRangeAsync(userId, from, to);
+
             foreach (var budget in budgets)
             {
-                decimal spent = 0;
+                bool appliesToMonth = (!budget.Month.HasValue || budget.Month.Value == month) &&
+                                     (!budget.Year.HasValue || budget.Year.Value == year);
 
-                if (budget.BudgetType == BudgetType.Monthly && budget.Month == month && budget.Year == year)
+                if (!appliesToMonth) continue;
+
+                decimal spent = 0;
+                if (budget.CategoryId.HasValue)
                 {
-                    spent = await _expenseRepo.GetTotalByUserIdAndMonthAsync(userId, month, year);
-                }
-                else if (budget.BudgetType == BudgetType.Category && budget.CategoryId.HasValue)
-                {
-                    var from = new DateTime(year, month, 1);
-                    var to = from.AddMonths(1).AddDays(-1);
-                    var expenses = await _expenseRepo.GetByUserIdAndDateRangeAsync(userId, from, to);
-                    spent = expenses.Where(e => e.CategoryId == budget.CategoryId.Value).Sum(e => e.Amount);
+                    spent = monthExpenses.Where(e => e.CategoryId == budget.CategoryId.Value).Sum(e => e.Amount);
                 }
                 else
                 {
-                    continue;
+                    spent = monthExpenses.Sum(e => e.Amount);
                 }
 
                 result.Add(new BudgetStatusViewModel { Budget = budget, Spent = spent });

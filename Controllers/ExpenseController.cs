@@ -21,11 +21,17 @@ namespace SpendingTracker.Controllers
             _categoryService = categoryService;
         }
 
-        public async Task<IActionResult> Index(int page = 1, string? search = null, string? sortBy = null, int? categoryId = null)
+        public async Task<IActionResult> Index(int page = 1, string? search = null, string? sortBy = null, int? categoryId = null, int? month = null, int? year = null)
         {
             var userId = _userManager.GetUserId(User)!;
             const int pageSize = 10;
+            var selectedMonth = month ?? DateTime.Now.Month;
+            var selectedYear = year ?? DateTime.Now.Year;
+
             var all = (await _expenseService.GetUserExpensesAsync(userId)).ToList();
+
+            // Filter strictly by month and year
+            all = all.Where(e => e.Date.Month == selectedMonth && e.Date.Year == selectedYear).ToList();
 
             if (categoryId.HasValue)
                 all = all.Where(e => e.CategoryId == categoryId.Value).ToList();
@@ -51,6 +57,8 @@ namespace SpendingTracker.Controllers
             ViewBag.Search = search;
             ViewBag.SortBy = sortBy;
             ViewBag.CategoryId = categoryId;
+            ViewBag.SelectedMonth = selectedMonth;
+            ViewBag.SelectedYear = selectedYear;
             ViewBag.TotalExpenses = all.Sum(e => e.Amount);
             ViewBag.Categories = await _categoryService.GetAvailableForUserAsync(userId);
 

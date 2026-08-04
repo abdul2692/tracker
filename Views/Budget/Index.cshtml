@@ -1,16 +1,38 @@
-﻿@model IEnumerable<SpendingTracker.ViewModels.BudgetStatusViewModel>
+@model IEnumerable<SpendingTracker.ViewModels.BudgetStatusViewModel>
 @{
     ViewData["Title"] = "Budgets";
 }
 
-<div class="page-header">
+@{
+    int curMonth = ViewBag.SelectedMonth ?? DateTime.Now.Month;
+    int curYear = ViewBag.SelectedYear ?? DateTime.Now.Year;
+    var selectedMonthName = System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(curMonth);
+}
+
+<div class="page-header d-flex flex-wrap justify-content-between align-items-center gap-3">
     <div>
         <h1 class="page-title">Budgets</h1>
-        <p class="page-subtitle">Track your spending against your budgets — @DateTime.Now.ToString("MMMM yyyy")</p>
+        <p class="page-subtitle">Track your spending against your budgets — @selectedMonthName @curYear</p>
     </div>
-    <a asp-action="Create" class="btn btn-primary-custom">
-        <i class="bi bi-plus-circle me-1"></i>New Budget
-    </a>
+    <div class="d-flex align-items-center gap-2">
+        <form method="get" asp-action="Index" class="d-flex align-items-center gap-2">
+            <select name="month" class="form-select form-select-sm form-control-dark" onchange="this.form.submit()">
+                @for (int m = 1; m <= 12; m++)
+                {
+                    <option value="@m" selected="@(m == curMonth)">@System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(m)</option>
+                }
+            </select>
+            <select name="year" class="form-select form-select-sm form-control-dark" onchange="this.form.submit()">
+                @for (int y = DateTime.Now.Year - 2; y <= DateTime.Now.Year + 1; y++)
+                {
+                    <option value="@y" selected="@(y == curYear)">@y</option>
+                }
+            </select>
+        </form>
+        <a asp-action="Create" class="btn btn-primary-custom text-nowrap">
+            <i class="bi bi-plus-circle me-1"></i>New Budget
+        </a>
+    </div>
 </div>
 
 @if (Model.Any())

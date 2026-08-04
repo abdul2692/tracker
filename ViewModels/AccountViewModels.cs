@@ -65,6 +65,13 @@ namespace SpendingTracker.ViewModels
         [Display(Name = "Currency")]
         public string Currency { get; set; } = "USD";
 
+        [Display(Name = "Profile Photo")]
+        public Microsoft.AspNetCore.Http.IFormFile? ProfilePhoto { get; set; }
+
+        public string? ExistingProfilePicture { get; set; }
+
+        public bool DeletePhoto { get; set; }
+
         [DataType(DataType.Password)]
         [Display(Name = "Current Password")]
         public string? CurrentPassword { get; set; }

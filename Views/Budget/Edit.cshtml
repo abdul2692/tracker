@@ -62,12 +62,13 @@
                         </div>
                     </div>
 
-                    <div id="categoryField" style="display:none">
+                    <div id="categoryField">
                         <div class="mb-3">
-                            <label asp-for="CategoryId" class="form-label-custom"></label>
+                            <label asp-for="CategoryId" class="form-label-custom">Category</label>
                             <select asp-for="CategoryId" asp-items="Model.Categories" class="form-select form-control-dark">
-                                <option value="">-- Select Category --</option>
+                                <option value="">-- Select Category (Optional) --</option>
                             </select>
+                            <span asp-validation-for="CategoryId" class="text-danger small"></span>
                         </div>
                     </div>
 
@@ -84,12 +85,11 @@
 @section Scripts {
     <script>
         const typeSelect = document.getElementById('budgetTypeSelect');
-        const monthlyFields = document.getElementById('monthlyFields');
         const categoryField = document.getElementById('categoryField');
         function toggleFields() {
             const val = typeSelect.value;
-            monthlyFields.style.display = val === 'Monthly' ? 'block' : 'none';
-            categoryField.style.display = val === 'Category' ? 'block' : 'none';
+            const isCategory = val === 'Category' || val === '1';
+            categoryField.style.display = 'block';
         }
         typeSelect.addEventListener('change', toggleFields);
         toggleFields();
