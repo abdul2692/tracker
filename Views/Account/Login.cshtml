@@ -8,101 +8,81 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login - SpendingTracker</title>
+    <title>Login - SpendTracker</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
-    <link rel="stylesheet" href="~/css/site.css" />
-    <script>
-        (function () { var t = localStorage.getItem('theme') || 'light'; document.documentElement.setAttribute('data-theme', t); })();
-    </script>
+    <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
 </head>
-<body class="auth-body">
-    <!-- Theme toggle -->
-    <button class="theme-toggle-auth" id="authThemeToggle" title="Toggle theme" aria-label="Toggle theme">
-        <i class="bi bi-sun-fill" id="authThemeIcon"></i>
-    </button>
-
-    <div class="auth-container">
-        <div class="auth-card">
-            <div class="auth-brand">
-                <i class="bi bi-wallet2 brand-icon-lg"></i>
-                <h1 class="auth-title">SpendTracker</h1>
-                <p class="auth-subtitle">Sign in to your account</p>
+<body class="glass-body">
+    <div class="glass-container">
+        <div class="glass-card">
+            <div class="glass-brand">
+                <i class="bi bi-wallet2"></i>
+                <h1 class="glass-title">SpendTracker</h1>
+                <p class="glass-subtitle">Sign in to your account</p>
             </div>
 
-            <form asp-action="Login" method="post" class="auth-form">
+            <form asp-action="Login" method="post">
                 @Html.AntiForgeryToken()
                 <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
 
-                <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3 small"></div>
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="alert-glass alert-glass-danger">
+                        <div asp-validation-summary="ModelOnly"></div>
+                    </div>
+                }
 
                 @if (TempData["Success"] != null)
                 {
-                    <div class="alert alert-success rounded-3 small">@TempData["Success"]</div>
+                    <div class="alert-glass alert-glass-success">@TempData["Success"]</div>
                 }
                 @if (TempData["Error"] != null)
                 {
-                    <div class="alert alert-danger rounded-3 small">@TempData["Error"]</div>
+                    <div class="alert-glass alert-glass-danger">@TempData["Error"]</div>
                 }
 
-                <div class="mb-3">
-                    <label asp-for="Email" class="form-label-custom"></label>
-                    <div class="input-group-custom">
+                <div class="mb-4">
+                    <label asp-for="Email" class="glass-form-label"></label>
+                    <div class="glass-input-group">
                         <i class="bi bi-envelope input-icon"></i>
-                        <input asp-for="Email" class="form-control-custom" placeholder="your@email.com" autocomplete="email" />
+                        <input asp-for="Email" class="glass-input" placeholder="your@email.com" autocomplete="email" />
                     </div>
-                    <span asp-validation-for="Email" class="text-danger small"></span>
+                    <span asp-validation-for="Email" class="text-danger"></span>
                 </div>
 
-                <div class="mb-3">
-                    <label asp-for="Password" class="form-label-custom"></label>
-                    <div class="input-group-custom">
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label asp-for="Password" class="glass-form-label mb-0"></label>
+                        <a asp-action="ForgotPassword" class="glass-link" style="font-size:0.8rem;">Forgot Password?</a>
+                    </div>
+                    <div class="glass-input-group">
                         <i class="bi bi-lock input-icon"></i>
-                        <input asp-for="Password" class="form-control-custom" placeholder="Your password" type="password" autocomplete="current-password" />
+                        <input asp-for="Password" class="glass-input" placeholder="Your password" type="password" autocomplete="current-password" />
                     </div>
-                    <span asp-validation-for="Password" class="text-danger small"></span>
-                    <div class="text-end mt-1">
-                        <a asp-action="ForgotPassword" class="auth-link" style="font-size:0.78rem;">Forgot Password?</a>
-                    </div>
+                    <span asp-validation-for="Password" class="text-danger"></span>
                 </div>
 
-                <div class="mb-3 form-check">
+                <div class="mb-4 form-check">
                     <input asp-for="RememberMe" class="form-check-input" type="checkbox" id="rememberMe" />
-                    <label class="form-check-label text-muted" for="rememberMe">Remember me</label>
+                    <label class="form-check-label" for="rememberMe">Remember me</label>
                 </div>
 
-                <button type="submit" class="btn btn-auth">
+                <button type="submit" class="glass-btn">
                     <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
                 </button>
 
-                <p class="auth-footer text-center mt-3">
-                    Don't have an account? <a asp-action="Register" class="auth-link">Create one</a>
+                <p class="glass-footer">
+                    Don't have an account? <a asp-action="Register" class="glass-link">Create one</a><br/>
+                    <a asp-action="ResendEmailConfirmation" class="glass-link mt-2 d-inline-block" style="font-size: 0.85rem;">Resend Verification Email</a>
                 </p>
             </form>
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
-    <script>
-        (function () {
-            var btn = document.getElementById('authThemeToggle');
-            var icon = document.getElementById('authThemeIcon');
-            function applyTheme(t) {
-                document.documentElement.setAttribute('data-theme', t);
-                localStorage.setItem('theme', t);
-                if (t === 'dark') { icon.className = 'bi bi-moon-fill'; }
-                else { icon.className = 'bi bi-sun-fill'; }
-            }
-            // Init icon
-            applyTheme(localStorage.getItem('theme') || 'light');
-            btn.addEventListener('click', function () {
-                var cur = document.documentElement.getAttribute('data-theme');
-                applyTheme(cur === 'dark' ? 'light' : 'dark');
-            });
-        })();
-    </script>
 </body>
 </html>

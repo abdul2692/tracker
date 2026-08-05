@@ -21,18 +21,6 @@ namespace SpendingTracker.Services
             var smtpPass = _config["Email:SmtpPass"];
             var fromEmail = _config["Email:FromEmail"] ?? "noreply@spendtracker.com";
 
-            if (string.IsNullOrWhiteSpace(smtpHost) || 
-                string.IsNullOrWhiteSpace(smtpUser) || 
-                (smtpUser != null && smtpUser.Contains("YOUR_GMAIL_USERNAME")) || 
-                (smtpPass != null && smtpPass.Contains("YOUR_GMAIL_APP_PASSWORD")))
-            {
-                // Dev mode: log the email instead of sending
-                _logger.LogWarning(
-                    "DEV MODE (Gmail placeholders detected) - To: {To} | Subject: {Subject}\nLink: {Body}",
-                    email, subject, htmlMessage);
-                return;
-            }
-
             try
             {
                 int port = int.TryParse(smtpPortStr, out var p) ? p : 587;
@@ -57,8 +45,8 @@ namespace SpendingTracker.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to send email to {To}. Reverting to Console fallback.", email);
-                _logger.LogWarning("EMAIL FALLBACK LINK - To: {To} | Body: {Body}", email, htmlMessage);
+                _logger.LogError(ex, "Failed to send email to {To}.", email);
+                throw new InvalidOperationException("Failed to send email. Please check your SMTP configuration.", ex);
             }
         }
     }

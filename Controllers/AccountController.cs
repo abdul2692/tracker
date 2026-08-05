@@ -41,13 +41,37 @@ namespace SpendingTracker.Controllers
                 FirstName = vm.FirstName,
                 LastName = vm.LastName,
                 CreatedAt = DateTime.UtcNow,
-                EmailConfirmed = true
+                EmailConfirmed = false
             };
 
             var result = await _userManager.CreateAsync(user, vm.Password);
             if (result.Succeeded)
             {
-                TempData["Success"] = "Account created successfully. Please log in.";
+                var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                var code = Microsoft.AspNetCore.WebUtilities.WebEncoders.Base64UrlEncode(System.Text.Encoding.UTF8.GetBytes(token));
+                var confirmationLink = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, token = code }, Request.Scheme);
+                
+                var emailBody = $@"
+                    <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;'>
+                        <h2 style='color: #2b6cb0;'>Verify Your Email Address</h2>
+                        <p>Hi {user.FirstName},</p>
+                        <p>Please click the button below to verify your email and activate your SpendTracker account.</p>
+                        <div style='text-align: center; margin: 30px 0;'>
+                            <a href='{confirmationLink}' style='background-color: #3182ce; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;'>Verify Email</a>
+                        </div>
+                        <p style='font-size: 0.8em; color: #718096;'>If you cannot click the button above, copy and paste this URL into your browser:</p>
+                        <p style='font-size: 0.8em; color: #3182ce; word-break: break-all;'>{confirmationLink}</p>
+                    </div>";
+
+                try
+                {
+                    await _emailSender.SendEmailAsync(user.Email!, "Confirm your email - SpendTracker", emailBody);
+                    TempData["Success"] = "Account created successfully. Please check your email to verify your account before logging in.";
+                }
+                catch (Exception)
+                {
+                    TempData["Error"] = "Account created, but we encountered an error sending the verification email. Please try logging in and requesting a new verification email later.";
+                }
                 return RedirectToAction("Login");
             }
 
@@ -73,14 +97,18 @@ namespace SpendingTracker.Controllers
             var user = await _userManager.FindByEmailAsync(vm.Email);
             if (user != null)
             {
-                var passwordCheck = await _signInManager.CheckPasswordSignInAsync(user, vm.Password, lockoutOnFailure: false);
-                if (passwordCheck.Succeeded)
+                var result = await _signInManager.PasswordSignInAsync(vm.Email, vm.Password, vm.RememberMe, lockoutOnFailure: false);
+                if (result.Succeeded)
                 {
-                    await _signInManager.SignInAsync(user, vm.RememberMe);
                     TempData["Success"] = "Welcome back!";
                     if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                         return Redirect(returnUrl);
                     return RedirectToAction("Index", "Home");
+                }
+                if (result.IsNotAllowed)
+                {
+                    ModelState.AddModelError(string.Empty, "Email not verified. Please check your inbox or resend the verification email.");
+                    return View(vm);
                 }
             }
 
@@ -262,14 +290,27 @@ namespace SpendingTracker.Controllers
                 new { token = token, email = vm.Email },
                 Request.Scheme)!;
 
-            var htmlBody = $@"<p>Hi {user.FirstName},</p>
-<p>You requested a password reset for your SpendTracker account.</p>
-<p><a href=""{resetLink}"">Reset Password</a></p>
-<p>If you did not request this, please ignore this email. This link expires in 24 hours.</p>";
+            var htmlBody = $@"
+                <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;'>
+                    <h2 style='color: #2b6cb0;'>Reset Your Password</h2>
+                    <p>Hi {user.FirstName},</p>
+                    <p>You requested a password reset for your SpendTracker account.</p>
+                    <div style='text-align: center; margin: 30px 0;'>
+                        <a href='{resetLink}' style='background-color: #3182ce; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;'>Reset Password</a>
+                    </div>
+                    <p style='font-size: 0.8em; color: #718096;'>If you did not request this, please ignore this email. This link expires in 24 hours.</p>
+                </div>";
 
-            await _emailSender.SendEmailAsync(vm.Email, "Reset Your SpendTracker Password", htmlBody);
+            try
+            {
+                await _emailSender.SendEmailAsync(vm.Email, "Reset Your SpendTracker Password", htmlBody);
+            }
+            catch (Exception)
+            {
+                TempData["Error"] = "There was an error communicating with the email server. Please try again later.";
+                return RedirectToAction("Login");
+            }
 
-            TempData["ResetLink"] = resetLink;
             return RedirectToAction(nameof(ForgotPasswordConfirmation));
         }
 
@@ -392,9 +433,16 @@ namespace SpendingTracker.Controllers
                     <p style='font-size: 0.8em; color: #3182ce; word-break: break-all;'>{confirmationLink}</p>
                 </div>";
 
-            await _emailSender.SendEmailAsync(user.Email!, "Confirm your email - Expense Tracker", emailBody);
+            try
+            {
+                await _emailSender.SendEmailAsync(user.Email!, "Confirm your email - Expense Tracker", emailBody);
+                TempData["Success"] = "Verification email sent if the account exists.";
+            }
+            catch (Exception)
+            {
+                TempData["Error"] = "There was an error communicating with the email server. Please try again later.";
+            }
 
-            TempData["Success"] = "Verification email sent if the account exists.";
             return RedirectToAction("Login");
         }
     }

@@ -1,10 +1,10 @@
 @model SpendingTracker.ViewModels.ResendEmailConfirmationViewModel
 @{
-    ViewData["Title"] = "Resend Email Verification";
+    ViewData["Title"] = "Resend Verification Email";
     Layout = null;
 }
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -12,66 +12,49 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
-    <link rel="stylesheet" href="~/css/site.css" />
-    <script>
-        (function(){var t=localStorage.getItem('theme')||'light';document.documentElement.setAttribute('data-theme',t);})();
-    </script>
+    <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
 </head>
-<body class="auth-body">
-    <!-- Theme toggle -->
-    <button class="theme-toggle-auth" id="authThemeToggle" title="Toggle theme" aria-label="Toggle theme">
-        <i class="bi bi-sun-fill" id="authThemeIcon"></i>
-    </button>
-
-    <div class="auth-container">
-        <div class="auth-card">
-            <div class="auth-brand">
-                <i class="bi bi-envelope-at brand-icon-lg"></i>
-                <h1 class="auth-title">Resend Verification</h1>
-                <p class="auth-subtitle">Enter your email to receive a new confirmation link</p>
+<body class="glass-body">
+    <div class="glass-container">
+        <div class="glass-card">
+            <div class="glass-brand">
+                <i class="bi bi-envelope-paper"></i>
+                <h1 class="glass-title">Resend Email</h1>
+                <p class="glass-subtitle">Enter your email to receive a new verification link.</p>
             </div>
 
-            <form asp-action="ResendEmailConfirmation" method="post" class="auth-form">
+            <form asp-action="ResendEmailConfirmation" method="post">
                 @Html.AntiForgeryToken()
 
-                <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3 small"></div>
-
-                <div class="mb-3">
-                    <label asp-for="Email" class="form-label-custom"></label>
-                    <div class="input-group-custom">
-                        <i class="bi bi-envelope input-icon"></i>
-                        <input asp-for="Email" class="form-control-custom" placeholder="your@email.com" autocomplete="email" />
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="alert-glass alert-glass-danger">
+                        <div asp-validation-summary="ModelOnly"></div>
                     </div>
-                    <span asp-validation-for="Email" class="text-danger small"></span>
+                }
+
+                <div class="mb-4">
+                    <label asp-for="Email" class="glass-form-label"></label>
+                    <div class="glass-input-group">
+                        <i class="bi bi-envelope input-icon"></i>
+                        <input asp-for="Email" class="glass-input" placeholder="your@email.com" autocomplete="email" />
+                    </div>
+                    <span asp-validation-for="Email" class="text-danger"></span>
                 </div>
 
-                <button type="submit" class="btn btn-auth">
-                    <i class="bi bi-send-fill me-2"></i>Send Verification Email
+                <button type="submit" class="glass-btn">
+                    <i class="bi bi-send me-2"></i>Send Verification Email
                 </button>
 
-                <p class="auth-footer">
-                    Remembered your login? <a asp-action="Login" class="auth-link">Sign in</a>
+                <p class="glass-footer">
+                    Already verified? <a asp-action="Login" class="glass-link">Sign in</a>
                 </p>
             </form>
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        (function () {
-            var btn = document.getElementById('authThemeToggle');
-            var icon = document.getElementById('authThemeIcon');
-            function applyTheme(t) {
-                document.documentElement.setAttribute('data-theme', t);
-                localStorage.setItem('theme', t);
-                if (t === 'dark') { icon.className = 'bi bi-moon-fill'; }
-                else { icon.className = 'bi bi-sun-fill'; }
-            }
-            applyTheme(localStorage.getItem('theme') || 'light');
-            btn.addEventListener('click', function () {
-                var cur = document.documentElement.getAttribute('data-theme');
-                applyTheme(cur === 'dark' ? 'light' : 'dark');
-            });
-        })();
-    </script>
+    
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
 </body>
 </html>
